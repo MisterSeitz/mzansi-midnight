@@ -1,0 +1,273 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const i18nDir = path.resolve(__dirname, '../data/i18n');
+
+const TRANSLATIONS = {
+  // Tutorial Steps 3-6 Badges & Zones
+  'tutorial.step3.badge': {
+    en: 'STEP 3 OF 6 // ECONOMY & POWER-UPS',
+    af: 'STAP 3 VAN 6 // EKONOMIE & KRAG-VERSTERKINGS',
+    zu: 'ISINYATHELO 3 KWEZINGU-6 // UMNOTHO NAMANDLA',
+    xh: 'INYATHELO 3 KWANGAMA-6 // UQOQOSHO NEZIXHOBO ZAMANDLA',
+    st: 'KGATO 3 HO TSONA TSE 6 // MORUO LE MATLA A PHAHAMENG',
+    nso: 'KGATO YA 3 GO TŠA 6 // EKONOMI LE MATLA',
+    tn: 'KGATO YA 3 MO GO 6 // IKONOMI LE MAATLA',
+    ts: 'XITEJI XA 3 EKA 6 // IKHONOMI NA MATIMBA',
+    ss: 'SIGABA 3 KULOKU-6 // UMNOTHO NEMANDLA',
+    ve: 'TSHITEṄWA TSHA 3 KHA 6 // IKONOMI NA MAAṰHA',
+  },
+  'tutorial.step3.zone': {
+    en: 'Rands (ZAR), Gear Shop & Faction Perks',
+    af: 'Rande (ZAR), Toerustingwinkel & Faksievoordele',
+    zu: 'AmaRandi (ZAR), Isitolo Sempahla Nezinzuzo Zamaqembu',
+    xh: 'IiRandi (ZAR), Ivenkile yeZixhobo kunye neZibonelelo zamaQela',
+    st: 'Diranta (ZAR), Lebenkele la Lisebelisoa le Melemo ea Mekha',
+    nso: 'Diranta (ZAR), Lebenkele la Didirišwa le Melemo ya Dihlopha',
+    tn: 'Diranta (ZAR), Lebenkele la Didirisiwa le Melemo ya Ditlhopha',
+    ts: 'Ti-Rand (ZAR), Xitolo xa Switirho na Mipfuno ya Mintlawa',
+    ss: 'Emarandi (ZAR), Sitolo Setintfo Netinzuzo Temacembu',
+    ve: 'Dzirannda (ZAR), Vhengele ḽa Zwishumiswa na Mbuelo dza Zwigwada',
+  },
+  'tutorial.step3.bullet1': {
+    en: 'Black-Market Gear Shop (Top HUD): Buy permanent passive upgrades at Golden Dragon or Point Road (+1 WIRE, +1 STREET, -50% Trauma, or Free Roadblock Bypass).',
+    af: 'Swartmark-toerustingwinkel (Boonste HUD): Koop permanente passiewe opgraderings by Golden Dragon of Pointweg (+1 DRAAD, +1 STRAAT, -50% Trauma, of Gratis Padblokkade-omseiling).',
+    zu: 'Isitolo Sempahla Emnyama (Phezulu ku-HUD): Thenga ukuthuthukiswa okuqhubekayo e-Golden Dragon noma e-Point Road (+1 UCINGO, +1 UMGWAQO, -50% Ukuhlukumezeka).',
+    xh: 'Ivenkile yoMnyama (Phezulu kwi-HUD): Thenga uphuculo olusisigxina e-Golden Dragon okanye e-Point Road (+1 UCINGO, +1 ISITRATO, -50% uBuhlungu).',
+    st: 'Lebenkele la Thepa e Ntšo (Bohong bo ka Holimo): Reka lisebelisoa tsa ka mehla ho Golden Dragon kapa Point Road (+1 WAYA, +1 SETERATA).',
+    nso: 'Lebenkele la Didirišwa tša Khukhuneng (Godimo ga HUD): Reka dikaonafatšo tša go ya go ile go Golden Dragon goba Point Road (+1 WAYA, +1 SETERATA).',
+    tn: 'Lebenkele la Didirisiwa la Sephiri (Godimo ga HUD): Reka ditlhabololo tsa sennelaruri kwa Golden Dragon kgotsa Point Road (+1 WAYA, +1 MMILA).',
+    ts: 'Xitolo xa Switirho swa le Xihundleni (ehenhla ka HUD): Xava mpfuxeto wa nkarhi hinkwawo e-Golden Dragon kumbe Point Road (+1 WAYA, +1 XITARATA).',
+    ss: 'Sitolo Setintfo Setakwangasese (Ngetulu ku-HUD): Tsenga kutfutfukiswa lokungapheli e-Golden Dragon nome e-Point Road (+1 LICINGO, +1 UMGWACO).',
+    ve: 'Vhengele ḽa Tshiphiri ḽa Zwishumiswa (Nṱha ha HUD): Rengani khwiniso ya tshoṱhe Golden Dragon kana Point Road (+1 WAYA, +1 TSHIṰARAṰA).',
+  },
+  'tutorial.step3.bullet2': {
+    en: '1/Day Faction Tactical Calls (Left Panel): Reach +1/+2 Rep with a faction to trigger free daily abilities (Force Stage 6, +2 WIRE boost, or -2 Threat Clock segments).',
+    af: '1/Dag Faksie Taktiese Oproepe (Linkerpaneel): Bereik +1/+2 Rep met ’n faksie om gratis daaglikse vermoëns te aktiveer (Forseer Fase 6, +2 DRAAD-hupstoot, of -2 Dreigingshorlosie-segmente).',
+    zu: 'Izingcingo Zamasu Zeqembu (1/Ngosuku) (Iphaneli Yangasese): Finyelela ku-+1/+2 Rep neqembu ukuze uvule amakhono wamahhala ansuku zonke.',
+    xh: 'Iifowuni zamaQhinga zamaQela (1/Ngosuku) (Iphaneli yaseKhohlo): Fikelela ku-+1/+2 Rep neqela ukuvula izakhono zasimahla zemihla ngemihla.',
+    st: 'Mehala ea Leano ea Mekha (1 ka Letsatsi): Fihlella +1/+2 Rep le mokha ho qala bokhoni ba mahala ba letsatsi le letsatsi.',
+    nso: 'Megala ya Maano ya Sehlopha (1 ka Letšatši): Fihla go +1/+2 Rep le sehlopha go thoma bokgoni bja mahala bja letšatši le letšatši.',
+    tn: 'Mefala ya Togamaano ya Setlhopha (1 ka Letsatsi): Fitlha go +1/+2 Rep le setlhopha go dira ditiro tsa mahala tsa letsatsi le letsatsi.',
+    ts: 'Swirhambelo swa Maqhinga swa Mintlawa (1/hi Siku): Fikelela +1/+2 Rep na ntlawa ku pfulela vuswikoti bya mahala bya siku na siku.',
+    ss: 'Tingcingo Temasu Temacembu (1/Ngelilanga): Finyelela ku-+1/+2 Rep nelicembu kute uvule emakhono lamahala amihla yonkhe.',
+    ve: 'Mifouno ya Maano a Zwigwada (1 nga Ḓuvha): Swikelelani +1/+2 Rep na tshigwada u vula vhutsila ha mahala ha ḓuvha ḽiṅwe na ḽiṅwe.',
+  },
+  'tutorial.step3.bullet3': {
+    en: 'Safehouse Recovery & Emergency Upkeep: Spend Rands on Trauma Patch-Ups (+25% Composure), Shabeen Hustles, Diesel Overrides (R300), and Roadblock Bribes (R200).',
+    af: 'Veilige Huis Herstel & Noodinstandhouding: Spandeer Rande op Trauma-herstel (+25% Kalmte), Sjebien-skuiwe, Diesel-oorbrûe (R300), en Padblokkade-omkoopgeld (R200).',
+    zu: 'Ukululama Endlini Ephephile Nokugcinwa Kwezimo Eziphuthumayo: Sebenzisa amaRandi ekwelapheni ukuhlukumezeka (+25% Ukuzola), eShabhini, kudizili (R300), nasekufumbathiseni (R200).',
+    xh: 'Ukubuyiselwa kweSafehouse noLondolozo oluKhawulezayo: Sebenzisa iiRandi ekuPholeleni koBuhlungu (+25% uZolo), i-Shebeen, i-Diesel (R300), kunye nezifumbatho (R200).',
+    st: 'Pholiso ea Ntlo e Bolokehileng: Sebelisa Diranta ho Tokiso ea Mahlomola (+25% Boiketlo), Masene a Shebeen, Diesel (R300), le Kokoanyo ea Mapolesa (R200).',
+    nso: 'Phedišo ya Ntlo ya Tšhireletšo: Šomiša Diranta go Tokišo ya Mahlomola (+25% Khutšo), Maano a Shebeen, Diesel (R300), le Phepafatšo ya Ditsela (R200).',
+    tn: 'Phediso ya Ntlo ya Tshireletso: Dirisa Diranta mo go Phekolo ya Mahutsana (+25% Boiketlo), Maano a Shebeen, Diesel (R300), le Pipamolomo (R200).',
+    ts: 'Ku Holisiwa ka le Tindlwini to Sirheleleka: Tirhisa ti-Rand eka ku Holisa Vuvabyi (+25% Ku Rhula), Makungu ya Shebeen, Dizili (R300), na Vufukuzani (R200).',
+    ss: 'Kwelashwa Kwendlini Levikelekile: Sebentisa emarandi ekwelapheni kuhlupheka (+25% Kuthula), eShabhini, kudizili (R300), nekubhadala emaphoyisa (R200).',
+    ve: 'Vhutsireledzi ha Nḓu ya Tshireledzo: Shandisani Dzirannda kha u Fhodza Vhutungu (+25% Mulalo), Zwiṱirathedzhi zwa Shebeen, Dizili (R300), na Tshanḓa-nguvhoni (R200).',
+  },
+
+  'tutorial.step4.badge': {
+    en: 'STEP 4 OF 6 // THREATS & ELIMINATION',
+    af: 'STAP 4 VAN 6 // DREIGINGS & UITSKAKELING',
+    zu: 'ISINYATHELO 4 KWEZINGU-6 // IZINGOPHO NOKUQEDWA',
+    xh: 'INYATHELO 4 KWANGAMA-6 // IINGOZI NOKUPHANTSIKWA',
+    st: 'KGATO 4 HO TSONA TSE 6 // LITŠHOSETSO LE PHETHO',
+    nso: 'KGATO YA 4 GO TŠA 6 // DITŠHOŠETŠO LE PHEDIŠO',
+    tn: 'KGATO YA 4 MO GO 6 // MATSHOSETSO LE PHEDISO',
+    ts: 'XITEJI XA 4 EKA 6 // TIKHOMBO NA KU SIVELERIWA',
+    ss: 'SIGABA 4 KULOKU-6 // TINGOTI NEKUCEDVWA',
+    ve: 'TSHITEṄWA TSHA 4 KHA 6 // THIKHO NA U FHELISWA',
+  },
+  'tutorial.step4.zone': {
+    en: 'Threat Clocks, Composure & Character Fate',
+    af: 'Dreigingshorlosies, Kalmte & Karakterlot',
+    zu: 'Amawashi Esongelo, Ukuzola Nesiphetho Somlingiswa',
+    xh: 'Iiwotshi zoSongo, uZolo kunye noBume boMlinganiswa',
+    st: 'Liwache tsa Tšokelo, Boiketlo le Qetello ea Sebapali',
+    nso: 'Dišupanako tša Ditšhošetšo, Khutšo le Bokamoso bja Moanegwa',
+    tn: 'Diwatšhe tsa Matshosetsi, Boiketlo le Bokamoso jwa Moanelwa',
+    ts: 'Tiwatxi ta Ntlhontlho, Ku Rhula na Makumu ya Munhu',
+    ss: 'Emawashi Etingoti, Kuthula Nesiphetfo Semlingisi',
+    ve: 'Watshe dza Zwiṱuhu, Mulalo na Zwipikwa zwa Mubvumbedzwa',
+  },
+  'tutorial.step4.bullet1': {
+    en: 'Defeat / Arrest (Game Over): If Brigadier Mokoena’s "TRT Raid Sweep" (Act 1) or "Hawks Taskforce" (Act 2) hits 6/6, Sipho’s safehouse is stormed and the run ends in arrest.',
+    af: 'Nederlaag / Inhegtenisneming (Spel Verby): As brigadier Mokoena se "TRT Inval-vee" (Bedryf 1) of "Valke Taakmag" (Bedryf 2) 6/6 bereik, word die veilige huis bestorm en die speletjie eindig in arrestasie.',
+    zu: 'Ukwehlulwa / Ukuboshwa (Umdlalo Uphelile): Uma ukuhlasela kuka-Brigadier Mokoena (Isenzo 1 noma 2) kufika ku-6/6, indlu ephephile iyagqekezwa bese uyaboshwa.',
+    xh: 'Ukoyiswa / Ukubanjwa (Umdlalo Uphelile): Ukuba uMhlaseli ka-Brigadier Mokoena ufikelela ku-6/6, indlu ekhuselekileyo iyahlaselwa kwaye umdlalo uphela ngokubanjwa.',
+    st: 'Ho Hlolwa / Ho Tšoaroa (Papali e Felile): Haeba tlhaselo ea Brigadier Mokoena e fihla ho 6/6, ntlo e bolokehileng ea hlaseloa \'me o ea tšoaroa.',
+    nso: 'Go Fenngwa / Go Swarwa (Papadi e Fedile): Ge eba tlhaselo ya Brigadier Mokoena e fihla go 6/6, ntlo ya tšhireletšo e a thubja gomme papadi e fela ka go swarwa.',
+    tn: 'Go Fenngwa / Go Tshwarwa (Tshameko e Fedile): Fa tlhaselo ya ga Brigadier Mokoena e fitlha go 6/6, ntlo ya tshireletso e a thubiwa mme o a tshwarwa.',
+    ts: 'Ku Hluriwa / Ku Khomiwa (Ntlangu wu Herile): Loko nhlaselo wa Brigadier Mokoena wu fika eka 6/6, yindlu yo sirheleleka ya hlaseriwa ivi u khomiwa.',
+    ss: 'Kwehlulwa / Kuboshwa (Umdlalo Uphelile): Nangabe kuhlasela kwa-Brigadier Mokoena kufika ku-6/6, indlu levikelekile iyagcekezwa bese uyaboshwa.',
+    ve: 'U Kundwa / U Farwa (Mutambo wo Fhela): Arali u lalela ha Brigadier Mokoena ha swika kha 6/6, nḓu ya tsireledzo i a thubiwa nahone muṱambi a farwa.',
+  },
+  'tutorial.step4.bullet2': {
+    en: 'NPC Elimination (Constable Nandi): If "Nandi’s Bleedout" hits 4/4 before you stabilise her, Constable Nandi dies permanently in your safehouse (-30% Composure).',
+    af: 'NPC-uitskakeling (Konstabel Nandi): As "Nandi se Bloeding" 4/4 bereik voor jy haar stabiliseer, sterf konstabel Nandi permanent in jou veilige huis (-30% Kalmte).',
+    zu: 'Ukufa Komlingiswa (UConstable Nandi): Uma "Ukopha kukaNandi" kufika ku-4/4 ngaphambi kokumelapha, uConstable Nandi uyafa unomphela (-30% Ukuzola).',
+    xh: 'Ukubulawa koMlinganiswa (UKonstebile uNandi): Ukuba "Ukopha kukaNandi" kufikelela ku-4/4 ngaphambi kokuba umzinzise, uKonstebile uNandi uyafa unaphakade (-30% uZolo).',
+    st: 'Tahlehelo ea Sebapali (Lolepera Nandi): Haeba ho tsoa mali ha Nandi ho fihla ho 4/4 pele o mo phekola, Nandi o shoa ruri ka tlung ea hau (-30% Boiketlo).',
+    nso: 'Tahlegelo ya Moanegwa (Lefokisi Nandi): Ge eba go tšwa madi ga Nandi go fihla go 4/4 pele o mo fodiša, Nandi o hwa sa ruri ntlong ya gago (-30% Khutšo).',
+    tn: 'Tatlhegelo ya Moanelwa (Lepodisi Nandi): Fa go tswa madi ga ga Nandi go fitlha go 4/4 pele o mo phekola, Nandi o swa ruri mo ntlong ya gago (-30% Boiketlo).',
+    ts: 'Ku Lahlekeriwa hi Munhu (Phorisa Nandi): Loko ku huma ngati ka Nandi ku fika eka 4/4 u nga si n’wi tshungula, Phorisa Nandi u fela rindi emutini wa wena (-30% Ku Rhula).',
+    ss: 'Kufa Kwemlingisi (U-Constable Nandi): Nangabe kophisa kwaNandi kufika ku-4/4 ungakamlashi, Nandi uyafa phakadze endlini yakho (-30% Kuthula).',
+    ve: 'U Lovha ha Mulweleli (Pholisa Nandi): Arali u bva malofha ha Nandi ha swika kha 4/4 ni sa athu mu lafha, Nandi u fela tshoṱhe nḓuni ya tsireledzo (-30% Mulalo).',
+  },
+  'tutorial.step4.bullet3': {
+    en: 'Zero-Composure Breakdown & Vendettas: Hitting 0% Composure triggers an emergency breakdown costing 1 Die next morning. Dropping Faction Rep to -2 triggers armed retaliation.',
+    af: 'Nul-kalmte Ineenstorting & Wraaktogte: Om 0% Kalmte te tref veroorsaak ’n noodineenstorting wat die volgende oggend 1 Dobbelsteen kos. As Faksie-rep na -2 daal, veroorsaak dit gewapende vergelding.',
+    zu: 'Ukuhlukumezeka Kweziqubu (0% Ukuzola): Ukufinyelela ku-0% Ukuzola kubangela ukugula okuphuthumayo okudla idayisi eli-1 ngakusasa. Ukwehlisa idumela leqembu kuya ku--2 kubangela ukuhlaselwa ngezibhamu.',
+    xh: 'Ukuwa koZolo (0% uZolo): Ukufikelela ku-0% kubangela ukuwa kwengqondo okulahlekisa iDayisi eli-1 ngomso. Ukuhla kwe-Rep yeqela kuye ku--2 kubangela impindezelo yezixhobo.',
+    st: 'Ho Senyeha ha Boiketlo (0% Boiketlo): Ho fihla ho 0% ho baka ho senyeha ha maikutlo ho jang Taele e 1 hoseng. Ho theola seriti sa mokha ho ya ho -2 ho baka tlhaselo ea lihlomo.',
+    nso: 'Go Senyega ga Khutšo (0% Khutšo): Go fihla go 0% go baka boiketlo bjo bo maswe bjo bo jang Taese e 1 gosasa. Go theogela fase ga Rep ya sehlopha go -2 go baka tlhaselo ya dihlomo.',
+    tn: 'Go Senyega ga Boiketlo (0% Boiketlo): Go wela kwa go 0% go baka bothata jo bo jang Taele e le 1 kamoso. Go wela tlase ga seriti sa setlhopha go -2 go baka tlhaselo ya ditlhobolo.',
+    ts: 'Ku Tsandzeka ka Ku Rhula (0% Ku Rhula): Ku fika eka 0% swi vanga xiyimo xa xilamulela-mhangu lexi dyaka Dayisi ri-1 mundzuku. Ku hunguta Rep ya ntlawa ku ya eka -2 swi vanga ku lwisana hi swibalesa.',
+    ss: 'Kwephuka Kwekuthula (0% Kuthula): Kufika ku-0% kubangela kwekhatseka lokudla lidasi linye ekuseni. Kwehlisa sitfunti selicembu kuya ku--2 kubangela kuhlaselwa ngetibhamu.',
+    ve: 'U Thutheha ha Mulalo (0% Mulalo): U swika kha 0% zwi dzhia Daisi ḽithihi matsheloni. U tsa ha Rep ya tshigwada u swika kha -2 zwi ḓisa u livhana nga zwigidi.',
+  },
+
+  'tutorial.step5.badge': {
+    en: 'STEP 5 OF 6 // TOP HUD & MAP',
+    af: 'STAP 5 VAN 6 // BOONSTE HUD & KAART',
+    zu: 'ISINYATHELO 5 KWEZINGU-6 // PHOZULU KU-HUD NEMEPHU',
+    xh: 'INYATHELO 5 KWANGAMA-6 // I-HUD EPEZULU NEMEPHU',
+    st: 'KGATO 5 HO TSONA TSE 6 // BOHOLO BA KA HOLIMO LE MAPA',
+    nso: 'KGATO YA 5 GO TŠA 6 // GODIMO GA HUD LE MEPE',
+    tn: 'KGATO YA 5 MO GO 6 // GODIMO GA HUD LE MMEPE',
+    ts: 'XITEJI XA 5 EKA 6 // LE HENHLA KA HUD NA MAVHU',
+    ss: 'SIGABA 5 KULOKU-6 // NGETULU KU-HUD NEMAPHI',
+    ve: 'TSHITEṄWA TSHA 5 KHA 6 // NṰHA HA HUD NA MMEPE',
+  },
+  'tutorial.step5.zone': {
+    en: 'Load Shedding & SAPS Roadblocks',
+    af: 'Beurtkrag & SAPS Padblokkades',
+    zu: 'Ukucisha Kukagesi Nemigwaqo Evalwe Amaphoyisa (SAPS)',
+    xh: 'UkuCinywa koMbane kunye neeVimba ze-SAPS',
+    st: 'Kgaolo ea Motlakase le Lithibelo tsa Mapolesa (SAPS)',
+    nso: 'Kgaotšo ya Mohlagase le Dithibelo tša Sepodisa (SAPS)',
+    tn: 'Kgaolo ya Motlakase le Dikgoreletsi tsa Sepodisi (SAPS)',
+    ts: 'Kutsemiwa ka Gezi na Swivandla swo Pfala swa Maphorisa',
+    ss: 'Kucima Kwagesi Netivimbelo Temaphoyisa (SAPS)',
+    ve: 'U Tsimbela ha Mudagasi na Zwithivhelo zwa Mapholisa (SAPS)',
+  },
+  'tutorial.step5.bullet1': {
+    en: 'Stage 6 Lockouts: Computer servers at City Hall and Golden Dragon go offline during Stage 6—unless you pay R300 for Backup Generator Diesel.',
+    af: 'Fase 6 Uitsluitings: Rekenaarrekenaars by Stadsaal en Golden Dragon gaan van lyn af tydens Fase 6—tensy jy R300 betaal vir Rugsteunkragopwekker Diesel.',
+    zu: 'Ukuvalwa Kwesiteji 6: Amaseva ekhompyutha e-City Hall nase-Golden Dragon ayafa ngesikhathi seSiteji 6—ngaphandle uma ukhokha u-R300 wedizili yejenereyitha.',
+    xh: 'Ukuvalwa kwe-Stage 6: Ii-server zase-City Hall nase-Golden Dragon zicima ngexesha le-Stage 6—ngaphandle kokuba uhlawula i-R300 ye-diesel yejenereyitha.',
+    st: 'Ho Kwalwa ha Kgato 6: Li-server tsa City Hall le Golden Dragon li tsoa inthaneteng nakong ea Kgato 6—ntle le ha o lefa R300 ea diesel.',
+    nso: 'Go Tswalelwa ga Kgato 6: Di-server tša City Hall le Golden Dragon di a tima nakong ya Kgato 6—ntle le ge o lefa R300 ya diesel.',
+    tn: 'Go Tswalwa ga Kgato 6: Di-server tsa City Hall le Golden Dragon di a tima ka nako ya Kgato 6—ntle le fa o duela R300 ya diesel.',
+    ts: 'Ku Pfariwa ka Xiteji 6: Ti-server ta City Hall na Golden Dragon ta tima hi nkarhi wa Xiteji 6—handle ka loko u hakela R300 ya dizili.',
+    ss: 'Kuvalwa Kwesigaba 6: Emaseva a-City Hall nase-Golden Dragon ayacima ngesikhatsi seSigaba 6—ngaphandle nangabe ubhadala R300 yedizili.',
+    ve: 'U Valiwa ha Tshiteṅwa 6: Dziseva dza City Hall na Golden Dragon dzi a dzhimiwa nga Tshiteṅwa 6—nga nnda ha musi no badela R300 ya dizili.',
+  },
+  'tutorial.step5.bullet2': {
+    en: 'Stage 6 Cover Bonus: Infiltrating Pier 2 Cold Storage gets a +2 Roll Bonus during Stage 6 blackouts because harbour floodlights fail.',
+    af: 'Fase 6 Dekking Bonus: Infiltrasie van Pier 2 Koelstoor kry ’n +2 Rol Bonus tydens Fase 6 donkerte omdat haweligte faal.',
+    zu: 'Ibhonasi Yesivikelo Yesiteji 6: Ukungena e-Pier 2 Cold Storage kuthola ibhonasi engu-+2 ngesikhathi seSiteji 6 ngenxa yokucima kwezibani zetheku.',
+    xh: 'Ibhonasi yoKhuselo ye-Stage 6: Ukungena kwi-Pier 2 Cold Storage kufumana ibhonasi ye-+2 ngethuba le-Stage 6 ngenxa yokucima kwezibane ze-harbour.',
+    st: 'Bonase ea Kgato 6: Ho kena Pier 2 Cold Storage ho fumana Bonase ea +2 nakong ea Kgato 6 hobane mabone a boema-kepe a tima.',
+    nso: 'Bonase ya Tšhireletšo ya Kgato 6: Go tsena Pier 2 Cold Storage go hwetša Bonase ya +2 nakong ya Kgato 6 ka lebaka la go tima ga mabone a boemakepe.',
+    tn: 'Bonase ya Tshireletso ya Kgato 6: Go tsena Pier 2 Cold Storage go bona Bonase ya +2 ka nako ya Kgato 6 ka ntlha ya go tima ga dipone tsa boemakepe.',
+    ts: 'Bonasi ya Nsirhelelo ya Xiteji 6: Ku nghena Pier 2 Cold Storage swi kuma Bonasi ya +2 hi nkarhi wa Xiteji 6 hikuva timboni ta hlaluko ta tima.',
+    ss: 'Ibhonasi Yekuvikeleka Sigaba 6: Kungena e-Pier 2 Cold Storage kutfola ibhonasi le-+2 ngesikhatsi seSigaba 6 ngobe tinhlavu telitheku tiyacima.',
+    ve: 'Mbuelo ya Tsireledzo ya Tshiteṅwa 6: U dzhena Pier 2 Cold Storage zwi wana Mbuelo ya +2 nga tshifhinga tsha Tshiteṅwa 6 nga mulandu wa u dzhima ha dzitshenzheli.',
+  },
+  'tutorial.step5.bullet3': {
+    en: 'SAPS Roadblocks: If Precinct Heat hits 4+, inner-city corridors lock down, costing R200 bribe or 1 Die to cross unless you own the SAPS Radio Scanner.',
+    af: 'SAPS Padblokkades: As Polisiehitte 4+ bereik, sluit middestad-korridors toe, wat R200 omkoopgeld of 1 Dobbelsteen kos om te kruis, tensy jy die SAPS Radioskandeerder besit.',
+    zu: 'Imigwaqo Evalwe Amaphoyisa (SAPS): Uma ukushisa kwamaphoyisa kufika ku-4+, imigwaqo yasemadolobheni iyavalwa, idinga u-R200 noma idayisi eli-1 ukuyiwela ngaphandle uma unomsakazo we-SAPS.',
+    xh: 'Iizithintelo ze-SAPS: Ukuba ubushushu bufikelela ku-4+, iindlela zedolophu ziyavalwa, zixabisa i-R200 okanye iDayisi eli-1 ukuwela ngaphandle kokuba une-Scanner ye-SAPS.',
+    st: 'Lithibelo tsa SAPS: Haeba Mofuthu o fihla ho 4+, litsela tsa toropo lia koaloa, li hloka tjotjo ea R200 kapa Taele e 1 ho tšela ntle le ha o na le SAPS Radio Scanner.',
+    nso: 'Dithibelo tša SAPS: Ge eba Mogote o fihla go 4+, ditsela tša toropo di a tswalelwa, tša bitša R200 goba Taese e 1 go tshela ntle le ge o na le SAPS Radio Scanner.',
+    tn: 'Dikgoreletsi tsa SAPS: Fa Mogote o fitlha go 4+, ditsela tsa toropo di a tswalwa, di ja R200 kgotsa Taele e le 1 go kgabaganya ntle le fa o na le SAPS Radio Scanner.',
+    ts: 'Swivandla swa SAPS swo Pfala: Loko ku Hisa ku fika eka 4+, tindledlana ta doroba ta pfariwa, swi koxa R200 kumbe Dayisi ri-1 ku pela handle ka loko u ri na SAPS Radio Scanner.',
+    ss: 'Tivimbelo te-SAPS: Nangabe Kufutfumala kufika ku-4+, tindlela tasedolobheni tiyavalwa, tidzinga R200 nome lidasi linye kuwela ngaphandle nangabe unemsakato we-SAPS.',
+    ve: 'Zwithivhelo zwa SAPS: Arali u Fhisa ha swika kha 4+, dzindila dza dorobo dzi a valiwa, zwa dzhia R200 kana Daisi ḽithihi u wela nga nnda ha musi ni na SAPS Radio Scanner.',
+  },
+
+  'tutorial.step6.badge': {
+    en: 'STEP 6 OF 6 // CAMPAIGN & REPLAYABILITY',
+    af: 'STAP 6 VAN 6 // VELDTOG & HERSPEELBAARHEID',
+    zu: 'ISINYATHELO 6 KWEZINGU-6 // UMKHANKASO NOKUDLALA KABUSHA',
+    xh: 'INYATHELO 6 KWANGAMA-6 // IPHULO NOKUDLALA NGOKUTSHA',
+    st: 'KGATO 6 HO TSONA TSE 6 // LETŠOLO LE HO BAPALA HAPE',
+    nso: 'KGATO YA 6 GO TŠA 6 // LESOLO LE GO BAPALA GAPE',
+    tn: 'KGATO YA 6 MO GO 6 // LETSHOLO LE GO TSHAMEKA GAPE',
+    ts: 'XITEJI XA 6 EKA 6 // PFHUMBA NA KU TLHELA U TLANGISISA',
+    ss: 'SIGABA 6 KULOKU-6 // UMKHANKHASO NEKUDLALA KABUSHA',
+    ve: 'TSHITEṄWA TSHA 6 KHA 6 // FULOVHELO NA U TAMBA HAFHU',
+  },
+  'tutorial.step6.zone': {
+    en: 'Act 1 → Act 2, Endings Archive & New Game+',
+    af: 'Bedryf 1 → Bedryf 2, Eindes-argief & Nuwe Spel+',
+    zu: 'Isenzo 1 → Isenzo 2, Ingobo Yemiphumela Nomdlalo Omusha+',
+    xh: 'Isenzo 1 → Isenzo 2, UVimba weZiphelo noMdlalo oMtsha+',
+    st: 'Ketso 1 → Ketso 2, Polokelo ea Liphetho le Papali e Ncha+',
+    nso: 'Tiro 1 → Tiro 2, Polokelo ya Mafelelo le Papadi e Mpsha+',
+    tn: 'Tiro 1 → Tiro 2, Polokelo ya Diphelo le Tshameko e Ntšha+',
+    ts: 'Xiendlo 1 → Xiendlo 2, Vuhlayiselo bya Makumu na Ntlangu Wuntshwa+',
+    ss: 'Sinyatselo 1 → Sinyatselo 2, Silulu Semiphumela Nemdlalo Lomusha+',
+    ve: 'Nyito 1 → Nyito 2, Zwiralo zwa Mafhelo na Mutambo Muswa+',
+  },
+  'tutorial.step6.bullet1': {
+    en: 'Winning Act 1 & Entering Act 2: Secure 2 Core Leverage Clues to launch the Berth 14 Finale (Vigilante, Whistleblower, or Kingpin), then click "Continue to Act 2: The Bluff Refinery →".',
+    af: 'Wen Bedryf 1 & Betree Bedryf 2: Verkry 2 Kernleidrade om die Berth 14 Finale te loods (Vigilante, Fluitjieblaser, of Koning), klik dan "Gaan voort na Bedryf 2: Die Bluff Raffinadery →".',
+    zu: 'Ukunqoba Isenzo 1 Nokungena Esenzweni 2: Thola imikhondo emi-2 emikhulu ukuze uqale isiphetho sase-Berth 14, bese uchofoza "Qhubekela Esenzweni 2: I-Bluff Refinery →".',
+    xh: 'Ukuphumelela Isenzo 1 noKungena kwiSenzo 2: Fumana imikhondo emi-2 ephambili ukuqala i-Berth 14 Finale, uze ucofe "Qhubeka uye kwiSenzo 2: I-Bluff Refinery →".',
+    st: 'Ho Hlola Ketso 1 le ho Kena ho Ketso 2: Fumana lintlha tse 2 tsa bohlokoa ho qala Berth 14 Finale, ebe o tobetsa "Tsoela pele ho Ketso 2: The Bluff Refinery →".',
+    nso: 'Go Fena Tiro 1 le go Tsena go Tiro 2: Hwetša dintlha tše 2 tša motheo go thoma Berth 14 Finale, gomme o kgotle "Tšwela pele go Tiro 2: The Bluff Refinery →".',
+    tn: 'Go Fena Tiro 1 le go Tsena mo Tirong 2: Bona dintlha di le 2 tsa botlhokwa go simolola Berth 14 Finale, mme o tobetse "Tswelela go Tiro 2: The Bluff Refinery →".',
+    ts: 'Ku Hlula Xiendlo 1 na ku Nghena eka Xiendlo 2: Kuma mintlhontlho mimbirhi ya nkoka ku sungula Berth 14 Finale, ivi u tshindzela "Yana emahlweni eka Xiendlo 2: The Bluff Refinery →".',
+    ss: 'Kuncoba Sinyatselo 1 Nekungena Ku-2: Ttfola imikhondo lemibili lebalulekile kute ucale i-Berth 14 Finale, bese ucindzetela "Chubekela kuSinyatselo 2: The Bluff Refinery →".',
+    ve: 'U Kunda Nyito 1 na u Dzhena kha Nyito 2: Wananani zwiga zwivhili zwa vhuṱhogwa u thoma Berth 14 Finale, nahone ni khavhe "Bvelani phanḓa kha Nyito 2: The Bluff Refinery →".',
+  },
+  'tutorial.step6.bullet2': {
+    en: 'Winning Act 2: Crack the Island View Pipeline Manifest and Petrochemical Mass-Balance Audit to trigger the Bluff Parliamentary Reckoning.',
+    af: 'Wen Bedryf 2: Kraak die Island View Pyplynmanifes en Petrochemiese Massa-balansoudit om die Bluff Parlementêre Afrekening te aktiveer.',
+    zu: 'Ukunqoba Isenzo 2: Hlaziya uhlu lwamapayipi ase-Island View nokuhlolwa kwamakhemikhali ukuze uqale Ukwahlulelwa Kwephalamende.',
+    xh: 'Ukuphumelela Isenzo 2: Cazulula imbonakalo yombhobho we-Island View kunye nophicotho lwe-petrochemical ukuqala uMgwebo wePalamente.',
+    st: 'Ho Hlola Ketso 2: Hlahloba pehelo ea phaephe ea Island View le tlhahlobo ea lik\'hemik\'hale ho qala Kahlolo ea Palamente.',
+    nso: 'Go Fena Tiro 2: Ruba mananeo a phaephe ya Island View le tlhahlobo ya petrochemical go thoma Kahlolo ya Palamente.',
+    tn: 'Go Fena Tiro 2: Sekaseka lenaane la dipeipi tsa Island View le tshekatsheko ya petrochemical go simolola Katlholo ya Palamente.',
+    ts: 'Ku Hlula Xiendlo 2: Tlhantlha mavito ya phayiphi ya Island View na ku kambisisa ka petrochemical ku sungula Ndzivalelo ya Phalamende.',
+    ss: 'Kuncoba Sinyatselo 2: Hlahla tinhlelo temaphayiphi ase-Island View nekuhlola kwelikhemikhali kute ucale Kwehlulela Kwephalamende.',
+    ve: 'U Kunda Nyito 2: Tandululani phaiphi dza Island View na ṱhoḓisiso ya petrochemical u vusa Mufhindulo wa Phalamennde.',
+  },
+  'tutorial.step6.bullet3': {
+    en: 'New Game+ & Fixer Registry: After any victory, check your S-to-C Fixer Grade against the eThekwini Fixer Registry, collect 6 Commendation Badges, and launch New Game+ to keep all Black-Market Gear + R1,000 bonus cash!',
+    af: 'Nuwe Spel+ & Fixer-register: Na enige oorwinning, kyk na jou S-tot-C Fixer-graad teen die eThekwini Fixer-register, versamel 6 Aanbevelingskentekens, en begin Nuwe Spel+ om alle toerusting + R1,000 kontant te behou!',
+    zu: 'Umdlalo Omusha+ NeRejista Yokulungisa: Ngemuva kokunqoba, bheka ibanga lakho le-Fixer kuRejista yase-eThekwini, qoqa amabheji angu-6, bese uqala Umdlalo Omusha+ ukuze ugcine yonke impahla kanye nebhonasi engu-R1,000!',
+    xh: 'UMdlalo oMtsha+ kunye neRejista ye-Fixer: Emva koloyiso, khangela iBanga lakho le-Fixer kwi-Registry yaseThekwini, uqokelele iiBheji ezi-6, uze uqale uMdlalo oMtsha+ ukugcina zonke izixhobo + R1,000!',
+    st: 'Papali e Ncha+ le Ngoliso ea Fixer: Kamora tlholo, sheba Boemo ba hau ba Fixer ho Registry ea eThekwini, bokella Libeche tse 6, \'me u qale Papali e Ncha+ ho boloka lisebelisoa tsohle + R1,000!',
+    nso: 'Papadi e Mpsha+ le Rejistara ya Fixer: Morago ga phenyo, lebelela Maemo a gago a Fixer go Rejistara ya eThekwini, kgoboketša Dibetšhe tše 6, gomme o thome Papadi e Mpsha+ go boloka didirišwa ka moka + R1,000!',
+    tn: 'Tshameko e Ntšha+ le Rejisetara ya Fixer: Morago ga phenyo, leba Maemo a gago a Fixer mo Rejisetareng ya eThekwini, kokoanya Dibetšhe di le 6, mme o simolole Tshameko e Ntšha+ go boloka didirisiwa tsotlhe + R1,000!',
+    ts: 'Ntlangu Wuntshwa+ na Rhejistara ya Fixer: Endzhaku ka ku hlula, languta Xiyimo xa wena xa Fixer eka Rhejistara ya eThekwini, hlengeleta Mimfungho ya 6, ivi u sungula Ntlangu Wuntshwa+ ku hlayisa switirho hinkwaswo + R1,000!',
+    ss: 'Umdlalo Lomusha+ Nekubhaliswa Kwe-Fixer: Ngemuva kwekuncoba, buka Libanga lakho le-Fixer eRejisteni yase-Thekwini, butsani Emabheji langu-6, bese ucala Umdlalo Lomusha+ kute ugcine tonkhe tintfo nemali le-R1,000!',
+    ve: 'Mutambo Muswa+ na Rejiseta ya Fixer: Murahu ha phenyo, sedzani Vhuimo haṋu ha Fixer kha Rejiseta ya eThekwini, kuvhanganyani Zwiṱangadzi zwa 6, nahone ni thome Mutambo Muswa+ u vhulunga zwishumiswa zwoṱhe + R1,000!',
+  },
+};
+
+const langs = ['en', 'af', 'zu', 'xh', 'st', 'nso', 'tn', 'ts', 'ss', 've'];
+
+for (const lang of langs) {
+  const filePath = path.join(i18nDir, `${lang}.json`);
+  if (!fs.existsSync(filePath)) continue;
+
+  const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  let addedCount = 0;
+
+  for (const [key, langMap] of Object.entries(TRANSLATIONS)) {
+    const val = langMap[lang] || langMap.en;
+    content[key] = val;
+    addedCount++;
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(content, null, 2) + '\n', 'utf-8');
+  console.log(`Part 2 updated ${lang}.json: injected ${addedCount} keys.`);
+}

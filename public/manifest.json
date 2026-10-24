@@ -1,0 +1,19 @@
+{
+  "name": "Mzansi Midnight // eThekwini-Gold",
+  "short_name": "Mzansi Midnight",
+  "description": "A Dice-and-Node Noir RPG set in a captured South African metropolis.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#f59e0b",
+  "categories": ["games", "rpg", "strategy"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
