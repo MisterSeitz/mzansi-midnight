@@ -97,7 +97,7 @@ In **Story 1: eThekwini-Gold**, players take on the role of a suspended Hawks (D
   - `data/story3NamaquaState.ts`, `data/story3NamaquaPrologue.ts`, `data/story3NamaquaDialogues.ts`, `data/story3NamaquaEvents.ts`, `data/story3NamaquaEndings.ts`: Story 3 Namaqua-Diamond campaign state, 7 nodes, 6 clocks, fog & decompression mechanics, 5 faction perks, and 4 endings.
   - `data/story4CapeState.ts`, `data/story4CapePrologue.ts`, `data/story4CapeDialogues.ts`, `data/story4CapeEvents.ts`, `data/story4CapeEndings.ts`: Story 4 Cape-Nocturne campaign state, 7 nodes, 6 clocks, gang crossfire & gale mechanics, 5 faction perks, and 4 endings.
   - `data/story5OctagonState.ts`, `data/story5OctagonPrologue.ts`, `data/story5OctagonDialogues.ts`, `data/story5OctagonEvents.ts`, `data/story5OctagonEndings.ts`: Story 5 The Sovereign Octagon grand national finale, 7 national command nodes (`o1`–`o7`), 6 clocks, 5 national factions with daily tactical perks, 5 contact dialogues, and 5 grand epilogues.
-  - `data/i18n/*.json`: Canonical English master dictionary (`en.json`) and 9 full South African official language dictionaries (`zu`, `xh`, `af`, `st`, `nso`, `tn`, `ts`, `ss`, `ve`), each with >1,670 synchronized canonical keys across all 5 stories.
+  - `data/i18n/*.json`: Canonical English master dictionary (`en.json`) and 9 full South African official language dictionaries (`zu`, `xh`, `af`, `st`, `nso`, `tn`, `ts`, `ss`, `ve`), each with exactly 1,836 synchronized canonical keys across all 5 stories with 0 missing keys.
 - **`engine/`**
   - `engine/resolver.ts`: Pure state functions `resolveActionSlot()`, `advanceToNextDay()`, `travelToNode()`, `activateGeneratorDiesel()`, `activateFactionPerk()`, `getHostileTurfPenalty()`, `purchaseBlackMarketGear()`, `applyDialogueReward()`, and roadblock helpers across both Act 1 and Act 2, plus all 25 faction standing perks across Stories 1–5.
   - `engine/eventResolver.ts`: Pure state function `resolveTriggeredEvent()` handling multi-choice event consequences, clock completion triggers, and ending transitions.
@@ -108,8 +108,8 @@ In **Story 1: eThekwini-Gold**, players take on the role of a suspended Hawks (D
     - Dynamic English reverse mapping: `EN_REVERSE_MAP` & `getLocalizedTextByEnglishValue(englishText, lang)`
     - Retrospective log translator: `getLocalizedLogEntry(entry, lang)`
     - Contextual tactical advisor translator: `getLocalizedRecommendation(rec, lang)`
-  - `engine/__tests__/`: Automated `vitest` test suites (106 tests total across 7 suites):
-    - `engine/__tests__/campaignStorage.test.ts` (7 tests): Cross-story progression, lock/unlock mechanics, Keystone Dossier awards, and legacy auto-sync.
+  - `engine/__tests__/`: Automated `vitest` test suites (107 tests total across 7 suites):
+    - `engine/__tests__/campaignStorage.test.ts` (8 tests): Cross-story progression, lock/unlock mechanics, Keystone Dossier awards, and legacy auto-sync.
     - `engine/__tests__/story2Highveld.test.ts` (11 tests): Story 2 Highveld state initialization, 7 nodes, 6 clocks, rockfall mechanics, faction perks, contact dialogues, endings, and Keystone extraction.
     - `engine/__tests__/story3Namaqua.test.ts` (15 tests): Story 3 Namaqua state initialization, 7 nodes, 6 clocks, fog & decompression mechanics, faction perks, contact dialogues, endings, and Keystone extraction.
     - `engine/__tests__/story4Cape.test.ts` (16 tests): Story 4 Cape-Nocturne state initialization, 7 nodes, 6 clocks, gang crossfire & gale mechanics, 5 faction perks, contact dialogues, 4 endings, and Keystone extraction unlocking Story 5.
@@ -126,7 +126,7 @@ In **Story 1: eThekwini-Gold**, players take on the role of a suspended Hawks (D
   - `components/ConspiracyBoardModal.tsx`: Interactive SVG red-string corkboard & forensic link inspector mapping suspects, shell companies, and evidence exhibits across Act 1 and Act 2, fully localized across all 10 South African regional languages.
   - `components/ContactDialogueModal.tsx`: Interactive NPC conversation & interrogation modal with live stat checks, evidence presentation, faction standing badges, one-time favor claim tracking, localized `INTEL SECURED:` notifications, localized dismiss actions, localized speaker moods, and localized reward summaries.
   - `components/EvidenceDossierModal.tsx`: Interactive forensic document & hardware specification reader for all evidence items and black-market upgrades.
-  - `components/DistrictSvgMap.tsx`: Tactical SVG map of eThekwini-Gold (Act 1 CBD/Port & Act 2 Umhlanga Ridge/Midlands/Hangar 7) with a touch-scrollable mobile quick-select Node Pill Strip, sector columns, SAPS roadblock warnings, and fog-of-war locked leads.
+  - `components/DistrictSvgMap.tsx`: Tactical SVG map across all 5 stories with deconflicted node coordinates, bespoke cartographic regional map backgrounds (`public/assets/maps/`), a touch-scrollable mobile quick-select Node Pill Strip, sector columns, SAPS roadblock warnings, and fog-of-war locked leads.
   - `components/ObjectiveTracker.tsx`: Context-aware dynamic objective & next-step hint banner with 3-step Campaign Progress Bar and one-click `"Show Slot →"` navigation.
   - `components/TutorialOverlay.tsx`: 6-step interactive HUD walkthrough & Field Rules modal (auto-opens on first map visit or via `? GUIDE`), fully translated across all 10 languages.
   - `components/ThreatClock.tsx`: Pure SVG circular segmented clock renderer with localized clock titles, types, and trigger badges.
@@ -135,28 +135,32 @@ In **Story 1: eThekwini-Gold**, players take on the role of a suspended Hawks (D
   - `components/MissionStatusModal.tsx`: Mission objective modal with localized styled-span win conditions for Act 1 and Act 2.
   - `components/PwaRegistrar.tsx`: Client-side Service Worker registrar paired with `public/manifest.json`, `public/sw.js`, and `public/icons/icon.svg` for standalone PWA installation.
 - **`public/assets/` & `scripts/`**
+  - `public/assets/nodes/*.jpg`: All 40 district node banners across all 5 stories (`n1`–`n12`, `h1`–`h7`, `d1`–`d7`, `c1`–`c7`, `o1`–`o7`).
+  - `public/assets/maps/*.jpg`: 5 bespoke high-resolution regional tactical cartographic maps (`map_ethekwini`, `map_highveld`, `map_namaqua`, `map_cape`, `map_octagon`).
+  - `public/assets/backgrounds/*.jpg`: 20 widescreen backgrounds (all 12 prologue archetypes, title key art, and 8 climax endings).
+  - `public/assets/characters/*.jpg`: 38 character portraits and faction crests (all 25 factions and key contacts).
+  - `scripts/audit-translations-and-assets.mjs`: Complete empirical audit tool verifying asset presence on disk and translation key counts across all 10 languages.
+  - `scripts/find-missing-keys.mjs`: Automated UI scanner detecting untranslated `t()` keys.
+  - `scripts/inject-missing-ui-keys.mjs`: Translation injector ensuring 100% key parity across all 10 South African languages.
+  - `scripts/generate-map-backgrounds.mjs`: FAL.ai Flux Schnell regional cartographic map generator.
   - `scripts/build-master-i18n.mjs`: Automated extractor generating canonical `en.json` from all game code, data, and UI components.
   - `scripts/translate-game-data.mjs`: Gemini 2.5 Flash batch translation pipeline translating canonical strings into 9 official SA languages with dialect noir accuracy.
-  - `scripts/inject-all-speaker-moods.mjs`: Deep translation injector for all 43 unique NPC speaker moods and dialogue roles.
-  - `scripts/inject-deep-translations-part6.mjs`: Deep translation injector for dialogue notifications, rewards, HUD clocks, and prologue banners.
-  - `scripts/generate-assets.mjs`: Automated FAL.ai (`fal-ai/flux/schnell`) noir artwork generator.
-  - `public/assets/{backgrounds,characters,nodes}/*.jpg`: 23 custom graphic-novel noir illustrations for the main menu key art (`title_keyart`), archetypes (`forensic_hawk`, `trt_breacher`, `crime_intel`), all 7 key NPCs (`nandi`, `mokoena`, `bheki`, `masibi`, `sparks`, `zuko`, `vandermerwe`), all 7 Act 1 district nodes (`n1`–`n7`), and all 5 Act 2 district nodes (`n8`–`n12`).
 
 ---
 
 ## Multilingual Localization Architecture (10 South African Languages)
 
 Mzansi Midnight features deep, zero-compromise localization across **all 10 official South African regional languages**:
-- `en` — English (Master Canonical Source)
-- `zu` — isiZulu
-- `xh` — isiXhosa
-- `af` — Afrikaans
-- `st` — Sesotho
-- `nso` — Sepedi (Northern Sotho)
-- `tn` — Setswana
-- `ts` — Xitsonga
-- `ss` — Siswati
-- `ve` — Tshivenḓa
+- `en` — English (Master Canonical Source — 1,836 keys)
+- `zu` — isiZulu (1,836 keys)
+- `xh` — isiXhosa (1,836 keys)
+- `af` — Afrikaans (1,836 keys)
+- `st` — Sesotho (1,836 keys)
+- `nso` — Sepedi / Northern Sotho (1,836 keys)
+- `tn` — Setswana (1,836 keys)
+- `ts` — Xitsonga (1,836 keys)
+- `ss` — Siswati (1,836 keys)
+- `ve` — Tshivenḓa (1,836 keys)
 
 ### Dual-Layer Translation Strategy
 1. **Direct Structured Key Lookup (`t(key, fallback, lang)`)**:
@@ -173,13 +177,14 @@ For complete developer guidelines on authoring new narrative campaigns or expand
 ## Development Commands
 
 - `npm run dev` — Start the Next.js development server at `http://localhost:3000`
-- `npm test` — Run the automated `vitest` unit test suites (`engine.test.ts` & `i18n.test.ts`, 35 tests total)
+- `npm test` — Run the automated `vitest` unit test suites (107 tests total across 7 test suites)
 - `npx tsc --noEmit` — Run TypeScript typechecking across all game modules
 - `npm run build` — Build production bundle
+- `node scripts/audit-translations-and-assets.mjs` — Run empirical audit of all visual assets and translation key parity
+- `node scripts/find-missing-keys.mjs` — Scan codebase for missing `t()` translation keys
 - `node scripts/build-master-i18n.mjs` — Extract 100% of master game strings into `data/i18n/en.json`
 - `node scripts/translate-game-data.mjs` — Run Gemini 2.5 Flash batch translation across all 9 official SA languages
-- `node scripts/inject-all-speaker-moods.mjs` — Inject all 43 localized speaker moods and stage directions
-- `node scripts/inject-deep-translations-part6.mjs` — Inject dialogue notification banners, rewards, and HUD labels
-- `node scripts/generate-assets.mjs` — Regenerate noir visual assets via `FAL_API_KEY` in `.env.local`
+- `node scripts/generate-map-backgrounds.mjs` — Regenerate regional tactical map backgrounds via `FAL_API_KEY`
+
 
 

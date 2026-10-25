@@ -356,7 +356,34 @@ The overarching narrative architecture is documented in [`STORIES.md`](file:///c
 
 ---
 
+### Phase 26c: Regional Cartographic Maps & Marker Deconfliction ✅
+- [x] **Regional Tactical Map Backgrounds (5/5 Maps via FAL.ai Flux Schnell)**:
+  - Created `scripts/generate-map-backgrounds.mjs` and generated 5 high-resolution bespoke cartographic tactical map backgrounds (`public/assets/maps/`):
+    - `map_ethekwini.jpg`: Coastal harbour, container berths, Umhlanga ridge, and illuminated CBD grid.
+    - `map_highveld.jpg`: Johannesburg brutalist skyline, mining headgears, gold reefs, and substation grid.
+    - `map_namaqua.jpg`: Richtersveld desert canyons, Atlantic diamond dredging coastline, and Orange River.
+    - `map_cape.jpg`: Table Mountain, Atlantic Seaboard, Long Street neon nightlife, and Cape Flats grid.
+    - `map_octagon.jpg`: Subterranean Drakensberg mountain redoubt, national power grid arteries, and Union Buildings.
+- [x] **Map Marker Deconfliction & Coordinate Geometry**:
+  - Re-anchored overlapping node coordinates across all 5 story campaign maps (e.g. deconflicted Braamfontein Loft and Hillbrow Substation in Gauteng, Long Street and Camps Bay in Cape Town, Port Nolloth Jetty and Alexander Bay Quarry in Namaqua).
+  - Cleaned transit connection lines and sector dividers in `DistrictSvgMap.tsx` to prevent SVG overlap and maintain clear touch targets on mobile and desktop.
+
+---
+
+### Phase 26d: Complete Anthology Translation & Asset Completeness Audit ✅
+- [x] **Empirical Asset Audit (100% Verified Presence)**:
+  - Created `scripts/audit-translations-and-assets.mjs` verifying all 40 district node banners (`public/assets/nodes/`), 5 regional tactical maps (`public/assets/maps/`), 20 widescreen backgrounds (`public/assets/backgrounds/`), and 38 character avatars & faction crests (`public/assets/characters/`) with 0 broken references across the entire codebase.
+- [x] **10-Language Translation Parity (1,836 Keys Each)**:
+  - Injected all 27 newly introduced UI keys (map sectors, story-specific objective trackers, roadblock warnings, intro mode buttons) across all 10 official South African regional languages (`en`, `af`, `zu`, `xh`, `st`, `nso`, `tn`, `ts`, `ss`, `ve`) via `scripts/inject-missing-ui-keys.mjs`.
+  - Injected 6 missing prologue log keys in `nso`, `ss`, `st`, `tn`, `ts`, `ve`, `xh`, bringing all 10 language dictionaries to exact 1:1 parity at **1,836 canonical keys** each with `find-missing-keys.mjs` reporting **0 missing keys**.
+- [x] **Comprehensive Quality & Regression Assurance**:
+  - 107/107 unit tests passing across all 7 test suites in Vitest.
+  - 0 TypeScript compilation errors (`npx tsc --noEmit`).
+
+---
+
 ### Phase 27: Voiceover Stems & Audio Atmosphere Expansion 📋
 - [ ] Authentic multilingual audio voice stabs for key NPC introductions across all official South African languages.
 - [ ] Regional procedural soundscape extensions: Highveld thunder and mine lifts, desert wind and Atlantic shore breaks, Cape Doctor gales, and bunker emergency klaxons.
+
 
