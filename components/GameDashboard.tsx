@@ -25,6 +25,7 @@ import { initialGameState } from '../data/initialState';
 import { transitionToAct2 } from '../data/act2State';
 import { getTacticalRecommendation } from '../engine/advisor';
 import { soundscape } from '../engine/soundscape';
+import { triggerHaptic } from '../engine/nativeBridge';
 import { SegmentedClock } from './ThreatClock';
 import { DistrictSvgMap } from './DistrictSvgMap';
 import { EventModal } from './EventModal';
@@ -907,6 +908,9 @@ export const GameDashboard: React.FC<{
       const chosenOutcome = slot.outcomes[tier];
 
       soundscape.playOutcome(tier);
+      triggerHaptic(
+        tier === 'clean' ? 'success' : tier === 'compromised' ? 'impact' : 'heavy'
+      );
       setLastRollFeedback({
         title: slot.title,
         rollMath: `Die ${die.value} ${totalMod >= 0 ? `+ ${totalMod}` : `- ${Math.abs(totalMod)}`} = ${finalRoll}`,
@@ -916,6 +920,7 @@ export const GameDashboard: React.FC<{
       });
     } else {
       soundscape.playOutcome('failure');
+      triggerHaptic('warning');
     }
 
     setState(nextState);

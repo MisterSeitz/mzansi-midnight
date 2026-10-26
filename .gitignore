@@ -40,3 +40,11 @@ yarn-error.log*
 *.sln
 *.sw?
 .system_generated/
+
+# Android & Capacitor build artifacts
+.gradle/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/build/

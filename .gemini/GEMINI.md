@@ -180,6 +180,10 @@ For complete developer guidelines on authoring new narrative campaigns or expand
 - `npm test` — Run the automated `vitest` unit test suites (107 tests total across 7 test suites)
 - `npx tsc --noEmit` — Run TypeScript typechecking across all game modules
 - `npm run build` — Build production bundle
+- `npm run cap:sync` — Build Next.js static export and sync web assets to Android
+- `npm run cap:open` — Open the native project in Android Studio
+- `npm run cap:build` — Build standalone Android Debug APK (`android/app/build/outputs/apk/debug/app-debug.apk`)
+- `npm run cap:bundle` — Build Google Play Release App Bundle (`android/app/build/outputs/bundle/release/app-release.aab`)
 - `node scripts/audit-translations-and-assets.mjs` — Run empirical audit of all visual assets and translation key parity
 - `node scripts/find-missing-keys.mjs` — Scan codebase for missing `t()` translation keys
 - `node scripts/build-master-i18n.mjs` — Extract 100% of master game strings into `data/i18n/en.json`

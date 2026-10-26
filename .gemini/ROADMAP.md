@@ -382,6 +382,25 @@ The overarching narrative architecture is documented in [`STORIES.md`](file:///c
 
 ---
 
+### Phase 26e: Standalone Capacitor Android App & Google Play Architecture ✅
+- [x] **Next.js Static Export Architecture**: Configured `next.config.mjs` with `output: 'export'` and `images: { unoptimized: true }`, generating a completely standalone offline bundle (`out/`) containing all HTML, CSS, JS, and visual/audio assets.
+- [x] **Capacitor 8 Integration & Configuration**:
+  - Installed `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, and native game plugins (`@capacitor/app`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor/haptics`).
+  - Authored `capacitor.config.ts` targeting `com.mzansimidnight.game` with `webDir: 'out'`, dark status bar `#020617`, and offline asset serving via `https://localhost`.
+- [x] **Native Android Project Generation & Gradle Build**:
+  - Initialized native Gradle project in `android/` with Target SDK 36 (exceeding Google Play requirement API 34+).
+  - Synchronized assets into `android/app/src/main/assets/public/` with 0 reliance on an external website or server.
+  - Successfully compiled debug APK (`android/app/build/outputs/apk/debug/app-debug.apk` ~72MB with all 40 node banners, 5 regional maps, 20 backgrounds, and 38 character avatars).
+- [x] **Hardware Integration & Native Bridge (`engine/nativeBridge.ts`)**:
+  - Wired Android hardware back button to dismiss modals, deselect dice, or confirm exit.
+  - Added native haptic rumble feedback on dice roll outcomes and threat alarms.
+  - Added smooth native splash screen transition.
+- [x] **Convenience Scripts & Publishing Documentation**:
+  - Added `cap:sync`, `cap:open`, `cap:build`, and `cap:bundle` to `package.json`.
+  - Authored comprehensive guide `docs/ANDROID_GOOGLE_PLAY_GUIDE.md` covering keystore generation, AAB bundle creation, and Google Play Console checklist.
+
+---
+
 ### Phase 27: Voiceover Stems & Audio Atmosphere Expansion 📋
 - [ ] Authentic multilingual audio voice stabs for key NPC introductions across all official South African languages.
 - [ ] Regional procedural soundscape extensions: Highveld thunder and mine lifts, desert wind and Atlantic shore breaks, Cape Doctor gales, and bunker emergency klaxons.

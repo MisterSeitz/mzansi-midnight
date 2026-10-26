@@ -20,6 +20,7 @@ import {
 } from '../engine/storage';
 import { loadCampaignProgression } from '../engine/campaignStorage';
 import { soundscape } from '../engine/soundscape';
+import { initializeNativeApp } from '../engine/nativeBridge';
 import { TitleIntroScreen } from '../components/TitleIntroScreen';
 import { PrologueScreen } from '../components/PrologueScreen';
 import { GameDashboard } from '../components/GameDashboard';
@@ -44,7 +45,7 @@ export default function EthekwiniGoldGame() {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState<boolean>(false);
 
-  // Hydrate settings & multi-slot save dossiers on mount
+  // Hydrate settings & multi-slot save dossiers on mount and initialize native bridge
   useEffect(() => {
     const loadedSettings = loadSettings();
     setSettings(loadedSettings);
@@ -53,7 +54,15 @@ export default function EthekwiniGoldGame() {
     const slots = loadAllSaveSlots();
     setSaveSlots(slots);
     setHydrated(true);
-  }, []);
+
+    initializeNativeApp(() => {
+      if (isSettingsOpen) {
+        setIsSettingsOpen(false);
+        return true;
+      }
+      return false;
+    });
+  }, [isSettingsOpen]);
 
   // Persist active gameplay changes to both 'autosave' and the selected active slot
   useEffect(() => {
