@@ -1834,5 +1834,22 @@
   "ui.unlocked": "E NOTLOLOTSOE",
   "ui.unused_dice_warning": "Litaese tsa Ketso tse sa Sebelisoang li Setseng Kajeno",
   "ui.used_today": "E SEBEDISITSOE KAJENO",
-  "ui.wipe_data": "Hlakola Lintlha"
+  "ui.wipe_data": "Hlakola Lintlha",
+  "ui.compromised": "E TSOHLE",
+  "ui.blowback": "PHELELO E MPE / HO HLOLEHA",
+  "ending.tab_scene": "PONAHALO YA BAESEKOPHO",
+  "ending.tab_aftermath": "KAMORAO HA SEBAKA",
+  "ending.tab_fixer": "TEKOLO YA FIXER",
+  "ending.district_power_shift": "Phetoho ya Matla Seterekeng & Diphello",
+  "ending.final_ledger": "Buka ya ho Qetela ya Fixer",
+  "advisor.registry_title": "Rejista ya Fixer ya eThekwini",
+  "advisor.commendations_title": "Dikhau tsa Leano & Dibetche",
+  "ui.previous_phase": "E fetileng",
+  "ui.next_phase": "Karolo e Latelang ►",
+  "cutscene.live_wire": "POLOKELO YA MOGALA // HO KHATHATSA HO HAHOLO",
+  "cutscene.beat": "MOATO",
+  "cutscene.skip": "TLOLA PONAHALO [ESC]",
+  "cutscene.controls_hint": "TOBETSANG SEBAKA / ENTER HO TSWELAPELE • ESC HO TLOLA",
+  "cutscene.next_beat": "TSWELAPELE HO MOATO O LATELANG [SPACE ►]",
+  "ui.outcome_result": "MOPUTSO // DIPHELLO"
 }

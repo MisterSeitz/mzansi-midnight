@@ -1834,5 +1834,22 @@
   "ui.unlocked": "KUVULIWE",
   "ui.unused_dice_warning": "Unused Action Dice Remaining Today",
   "ui.used_today": "KUSETJENTISWE NAMUHLATJE",
-  "ui.wipe_data": "Wipe Data"
+  "ui.wipe_data": "Wipe Data",
+  "ui.compromised": "KULIMELE",
+  "ui.blowback": "KUPHINDRISELWA / KWEHLULEKA",
+  "ending.tab_scene": "SIMO SESINEMA",
+  "ending.tab_aftermath": "SIMO SANGEMUVA SESIFUNDZA",
+  "ending.tab_fixer": "KUHLOLWA KWA-FIXER",
+  "ending.district_power_shift": "Kuntjintja Kwemandla Esifundzeni & Imiphumela",
+  "ending.final_ledger": "Incwadzi Yekugcina ya-Fixer",
+  "advisor.registry_title": "Rejista ya Fixer yaseThekwini",
+  "advisor.commendations_title": "Tindvondo Tetelisu & Emabheji",
+  "ui.previous_phase": "Lesengcile",
+  "ui.next_phase": "Sincenye Lesilandzelako ►",
+  "cutscene.live_wire": "INQOLOBANE YELUCINGO // KUVIMBELA KWETELISU",
+  "cutscene.beat": "SIGABA",
+  "cutscene.skip": "YECA SIMO [ESC]",
+  "cutscene.controls_hint": "CINFA SIKHALA / ENTER KUTE UCHUBEKE • ESC KUTE UYECE",
+  "cutscene.next_beat": "CHUBEKA ESIGABENI LESILANDZELAKO [SPACE ►]",
+  "ui.outcome_result": "INZUZO // UMPHUMELA"
 }

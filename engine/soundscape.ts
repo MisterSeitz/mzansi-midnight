@@ -230,7 +230,115 @@ class SoundscapeEngine {
       osc.stop(now + i * 0.11 + 0.1);
     });
   }
+
+  /**
+   * Heartbeat thud pulse scaling in tempo and depth with adrenaline level (1 to 5)
+   */
+  public playHeartbeat(adrenalineLevel: number = 3): void {
+    if (this.isMuted || this.sfxVolume <= 0) return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const intensity = Math.max(1, Math.min(5, adrenalineLevel));
+    const vol = (0.12 + intensity * 0.04) * this.sfxVolume;
+
+    // Lub-dub double pulse
+    [0, 0.13].forEach((offset, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      const baseFreq = idx === 0 ? 55 : 44;
+      osc.frequency.setValueAtTime(baseFreq + intensity * 4, now + offset);
+      osc.frequency.exponentialRampToValueAtTime(26, now + offset + 0.12);
+
+      gain.gain.setValueAtTime(vol * (idx === 0 ? 1 : 0.7), now + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.14);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + offset);
+      osc.stop(now + offset + 0.15);
+    });
+  }
+
+  /**
+   * Encrypted police/wire scanner squelch chirp
+   */
+  public playScannerSquelch(): void {
+    if (this.isMuted || this.sfxVolume <= 0) return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.linearRampToValueAtTime(1420, now + 0.025);
+    osc.frequency.linearRampToValueAtTime(320, now + 0.06);
+
+    gain.gain.setValueAtTime(0.08 * this.sfxVolume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.07);
+  }
+
+  /**
+   * Cinematic cutscene / climax chord stinger
+   */
+  public playCutsceneStinger(mood: 'crisis' | 'triumph' | 'noir' = 'noir'): void {
+    if (this.isMuted || this.sfxVolume <= 0) return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    this.startAmbient();
+
+    const now = ctx.currentTime;
+    const freqs =
+      mood === 'crisis'
+        ? [110, 116.54, 164.81, 233.08] // Dark diminished dread chord
+        : mood === 'triumph'
+        ? [130.81, 164.81, 196.0, 261.63] // Resolute major chord
+        : [98.0, 123.47, 146.83, 220.0]; // Noir minor 7th
+
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = mood === 'crisis' ? 'sawtooth' : 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+
+      const noteVol = (0.16 / freqs.length) * this.sfxVolume;
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(noteVol, now + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.8 + idx * 0.2);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 2.2);
+    });
+  }
+
+  /**
+   * Escalated action outcome sound scaling with narrative adrenaline level
+   */
+  public playAdrenalineOutcome(
+    tier: 'clean' | 'compromised' | 'failure',
+    adrenalineLevel: number = 1
+  ): void {
+    this.playOutcome(tier);
+    if (adrenalineLevel >= 4) {
+      this.playHeartbeat(adrenalineLevel);
+    }
+    if (adrenalineLevel >= 3 && tier !== 'clean') {
+      setTimeout(() => this.playScannerSquelch(), 180);
+    }
+  }
 }
 
 export const soundscape = new SoundscapeEngine();
+
 

@@ -1834,5 +1834,22 @@
   "ui.unlocked": "UNLOCKED",
   "ui.unused_dice_warning": "Unused Action Dice Remaining Today",
   "ui.used_today": "USED TODAY",
-  "ui.wipe_data": "Wipe Data"
+  "ui.wipe_data": "Wipe Data",
+  "ui.compromised": "COMPROMISED",
+  "ui.blowback": "BLOWBACK / FAILURE",
+  "ending.tab_scene": "CINEMATIC SCENE",
+  "ending.tab_aftermath": "DISTRICT AFTERMATH",
+  "ending.tab_fixer": "FIXER EVALUATION",
+  "ending.district_power_shift": "District Power Shift & Systemic Fallout",
+  "ending.final_ledger": "Final Fixer Ledger",
+  "advisor.registry_title": "eThekwini Fixer Registry",
+  "advisor.commendations_title": "Tactical Commendations & Badges",
+  "ui.previous_phase": "Previous",
+  "ui.next_phase": "Next Section ►",
+  "cutscene.live_wire": "LIVE WIRE ARCHIVE // TACTICAL INTERCEPT",
+  "cutscene.beat": "BEAT",
+  "cutscene.skip": "SKIP SCENE [ESC]",
+  "cutscene.controls_hint": "PRESS SPACE / ENTER TO ADVANCE • ESC TO SKIP",
+  "cutscene.next_beat": "CONTINUE TO NEXT BEAT [SPACE ►]",
+  "ui.outcome_result": "PAYOUT // CONSEQUENCE"
 }

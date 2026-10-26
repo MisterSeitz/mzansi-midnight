@@ -1834,5 +1834,22 @@
   "ui.unlocked": "E NOTOLETŠWE",
   "ui.unused_dice_warning": "Taese ya Ditiragalo tše sa Šomišwago e Šetše Lehono",
   "ui.used_today": "E ŠOMIŠITŠWE LEHONO",
-  "ui.wipe_data": "Phumula Datha"
+  "ui.wipe_data": "Phumula Datha",
+  "ui.compromised": "E GOBETŠWE",
+  "ui.blowback": "POELOMORAGO / GO PALELWA",
+  "ending.tab_scene": "PONAGALO YA BAESKOPHO",
+  "ending.tab_aftermath": "DITLAMORAGO TŠA SELETE",
+  "ending.tab_fixer": "TEKOLO YA FIXER",
+  "ending.district_power_shift": "Phetogo ya Maatla Seleteng & Ditlamorago",
+  "ending.final_ledger": "Puku ya Mafelelo ya Fixer",
+  "advisor.registry_title": "Rejistara ya Fixer ya eThekwini",
+  "advisor.commendations_title": "Difoka tša Maano & Dipetšhe",
+  "ui.previous_phase": "Ya go Feta",
+  "ui.next_phase": "Karolo e Latelago ►",
+  "cutscene.live_wire": "POLOKELO YA MOYENG // GO THIBELA GA MAANO",
+  "cutscene.beat": "KGATO",
+  "cutscene.skip": "TSHOLA PONAGALO [ESC]",
+  "cutscene.controls_hint": "KOBETŠA SEKGOBI / ENTER GO TŠWELAPELE • ESC GO TSHOLA",
+  "cutscene.next_beat": "TŠWELAPELE GO KGATO E LATELAGO [SPACE ►]",
+  "ui.outcome_result": "TEFO // DITLAMORAGO"
 }

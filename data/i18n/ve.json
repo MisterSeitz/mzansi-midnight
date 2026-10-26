@@ -1834,5 +1834,22 @@
   "ui.unlocked": "UNLOCKED",
   "ui.unused_dice_warning": "Unused Action Dice Remaining Today",
   "ui.used_today": "ZWO SHUMISWA NAMUSI",
-  "ui.wipe_data": "Wipe Data"
+  "ui.wipe_data": "Wipe Data",
+  "ui.compromised": "ZWO TSHINYEA",
+  "ui.blowback": "MVELELO MBI / U KUNDELWA",
+  "ending.tab_scene": "TSHIFHATO TSHA TSINEMA",
+  "ending.tab_aftermath": "ZWITSHILENI ZWA TSHITIRIKI",
+  "ending.tab_fixer": "TSEDZULUSO YA FIXER",
+  "ending.district_power_shift": "Tshanduko ya Maanda Tshitirikini & Mvelelo",
+  "ending.final_ledger": "Bugu ya U Fhedzisela ya Fixer",
+  "advisor.registry_title": "Rejisitara ya Fixer ya eThekwini",
+  "advisor.commendations_title": "Pfufho dza Zwa Vhuṱali & Zwibadzhi",
+  "ui.previous_phase": "Zwo Fhelaho",
+  "ui.next_phase": "Tshipida Tshi Tevhelaho ►",
+  "cutscene.live_wire": "VHUBULUNGELO HA THINGA // U THIVHELA HA TSHIIMO",
+  "cutscene.beat": "LUTENDO",
+  "cutscene.skip": "FHUFHA TSHIIMO [ESC]",
+  "cutscene.controls_hint": "KANDANI TSHIKHAYA / ENTER U YA PHANDA • ESC U FHUFHA",
+  "cutscene.next_beat": "YA PHANDA KHA LUTENDO LU TEVHELAHO [SPACE ►]",
+  "ui.outcome_result": "MBADELO // MVELELO"
 }

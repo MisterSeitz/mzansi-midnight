@@ -1834,5 +1834,22 @@
   "ui.unlocked": "E BULWE",
   "ui.unused_dice_warning": "Ditaese tsa Ditiro tse di Sa Dirisiwang di a Sala Gompieno",
   "ui.used_today": "E DIRISITSWENG GOMPIENO",
-  "ui.wipe_data": "Phimola Tshedimosetso"
+  "ui.wipe_data": "Phimola Tshedimosetso",
+  "ui.compromised": "E GOBAETSE",
+  "ui.blowback": "POELOMORAGO / GO RETELWA",
+  "ending.tab_scene": "PONALO YA BAESKOPHO",
+  "ending.tab_aftermath": "DITLAMORAGO TSA KGAOLO",
+  "ending.tab_fixer": "TEKANYETSO YA FIXER",
+  "ending.district_power_shift": "Phetogo ya Maatla mo Kgaolong & Ditlamorago",
+  "ending.final_ledger": "Buka ya Bofelo ya Fixer",
+  "advisor.registry_title": "Rejisetara ya Fixer ya eThekwini",
+  "advisor.commendations_title": "Diketleetso tsa Togamaano & Dibetšhe",
+  "ui.previous_phase": "E e Fetileng",
+  "ui.next_phase": "Karolo e e Latelang ►",
+  "cutscene.live_wire": "POLOKELO YA MOGALA // THIBELO YA MAANO",
+  "cutscene.beat": "KGATO",
+  "cutscene.skip": "TLOLA PONALO [ESC]",
+  "cutscene.controls_hint": "TOBETSA SEKGOBI / ENTER GO TSWELELA • ESC GO TLOLA",
+  "cutscene.next_beat": "TSWELELA KWA KGATONG E E LATELANG [SPACE ►]",
+  "ui.outcome_result": "TUELELO // DITLAMORAGO"
 }

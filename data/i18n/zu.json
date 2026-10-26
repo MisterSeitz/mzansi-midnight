@@ -1834,5 +1834,22 @@
   "ui.unlocked": "KUVULIWE",
   "ui.unused_dice_warning": "Amadayisi Esenzo Angasetshenziswanga Asele Namuhla",
   "ui.used_today": "KUSETSHENZISWE NAMUHLA",
-  "ui.wipe_data": "Sula Idatha"
+  "ui.wipe_data": "Sula Idatha",
+  "ui.compromised": "KUYALIMALA",
+  "ui.blowback": "UKUPHINDISELWA / UKWEHLULEKA",
+  "ending.tab_scene": "ISENZAKALO SESINEMA",
+  "ending.tab_aftermath": "ISIMO SANGEMUVA ESIFUNDENI",
+  "ending.tab_fixer": "UKUHLOLWA KWE-FIXER",
+  "ending.district_power_shift": "Ukushintsha Kwamandla Esifundeni & Imiphumela",
+  "ending.final_ledger": "Incwadi Yokugcina Ye-Fixer",
+  "advisor.registry_title": "Irejista Ye-Fixer yaseThekwini",
+  "advisor.commendations_title": "Izindondo Zobuhlakani & Amabheji",
+  "ui.previous_phase": "Okwedlule",
+  "ui.next_phase": "Isigaba Esilandelayo ►",
+  "cutscene.live_wire": "INGQONDO YOCINGO EBUKHOMA // UKUNQAMULA KWEZOKUVIKELA",
+  "cutscene.beat": "ISIGABA",
+  "cutscene.skip": "EQLA ISIGCAWU [ESC]",
+  "cutscene.controls_hint": "CINFA ISIKHALA / ENTER UKUZE UQHUBEKELWE • ESC UKUZE WEQE",
+  "cutscene.next_beat": "QHUBEKA ESIGABENI ESILANDELAYO [SPACE ►]",
+  "ui.outcome_result": "INZUZO // UMTHETHELELA"
 }

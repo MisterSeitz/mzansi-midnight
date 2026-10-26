@@ -1834,5 +1834,22 @@
   "ui.unlocked": "ONTSLUIT",
   "ui.unused_dice_warning": "Ongebruikte Aksiedobbelstene Vandag Oor",
   "ui.used_today": "VANDAG GEBRUIK",
-  "ui.wipe_data": "Vee Data Uit"
+  "ui.wipe_data": "Vee Data Uit",
+  "ui.compromised": "GEKOMPROMETEER",
+  "ui.blowback": "TERUGSLAG / MISLUKKING",
+  "ending.tab_scene": "KINEMATIESE TONEEL",
+  "ending.tab_aftermath": "DISTRIK-NASLEEP",
+  "ending.tab_fixer": "FIXER-EVALUERING",
+  "ending.district_power_shift": "Distrikskragverskuiwing & Sistemiese Nadraai",
+  "ending.final_ledger": "Finale Fixer-Grootboek",
+  "advisor.registry_title": "eThekwini Fixer-Register",
+  "advisor.commendations_title": "Taktiese Lofbetuigings & Kentekens",
+  "ui.previous_phase": "Vorige",
+  "ui.next_phase": "Volgende Afdeling ►",
+  "cutscene.live_wire": "LEWENDIGE DRAAD-ARGIEF // TAKTIESE ONDERSKEPPING",
+  "cutscene.beat": "MAATSLAG",
+  "cutscene.skip": "SLAAN OOR [ESC]",
+  "cutscene.controls_hint": "DRUK SPASIE / ENTER OM VOORT TE GAAN • ESC OM OOR TE SLAAN",
+  "cutscene.next_beat": "GAAN VOORT NA VOLGENDE MAATSLAG [SPASIE ►]",
+  "ui.outcome_result": "UITBETALING // GEVOLG"
 }

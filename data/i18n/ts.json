@@ -1834,5 +1834,22 @@
   "ui.unlocked": "PFURILE",
   "ui.unused_dice_warning": "Madayisi Ya Mintirho Lama Nga Tirhisiwangiki Ma Sala Namuntlha",
   "ui.used_today": "TI TIRHISIWLE NAMUNTLHA",
-  "ui.wipe_data": "Sula Data"
+  "ui.wipe_data": "Sula Data",
+  "ui.compromised": "KU ONHAKILE",
+  "ui.blowback": "VUYELO RO BIHA / KU TSANDZEKA",
+  "ending.tab_scene": "XIVONO XA CINEMA",
+  "ending.tab_aftermath": "SWA LE NDZHAKU KA NDHAWU",
+  "ending.tab_fixer": "KU HLAYELA KA FIXER",
+  "ending.district_power_shift": "Ku Cinca ka Matimba eXifundzeni & Vuyelo",
+  "ending.final_ledger": "Buku yo Hetelela ya Fixer",
+  "advisor.registry_title": "Rejisitara ya Fixer ya eThekwini",
+  "advisor.commendations_title": "Switsundzuxo swa Maqhinga & Swibaji",
+  "ui.previous_phase": "Leswi Hundzeke",
+  "ui.next_phase": "Xiyenge lexi Landzelaka ►",
+  "cutscene.live_wire": "VUHUNDZULUXI BYA RIQINGO // KU PHASA KA MAQHINGA",
+  "cutscene.beat": "XITEPE",
+  "cutscene.skip": "TLULA XIVONO [ESC]",
+  "cutscene.controls_hint": "GANDLANI XIKHAYA / ENTER KU YA EMAHLWENI • ESC KU TLULA",
+  "cutscene.next_beat": "YA EMAHLWENI KA XITEPE LEXI LANDZELAKA [SPACE ►]",
+  "ui.outcome_result": "HAKELO // VUYELO"
 }

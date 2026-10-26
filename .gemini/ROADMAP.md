@@ -401,8 +401,44 @@ The overarching narrative architecture is documented in [`STORIES.md`](file:///c
 
 ---
 
-### Phase 27: Voiceover Stems & Audio Atmosphere Expansion 📋
+### Phase 27: Ascending Adrenaline, Immersive Outcome Dispatches, Cutscenes & Cinematic Ending Scenes ✅
+- [x] **Adrenaline & Tension Scaling Engine (`engine/adrenaline.ts`)**:
+  - Implemented dynamic 5-tier Adrenaline calculation (`COVERT`, `ALERT`, `TENSION`, `CRITICAL`, `CLIMAX`) based on climax clock progression, threat clock saturation, composure depletion, and queued climax showdown events.
+  - Added real-time HUD tension meter with live pulse indicators and scanner status.
+  - Added full-screen tension edge vignette (`components/AdrenalineVignette.tsx`) that scales from dark noir into pulsing orange and rapid hazard crimson as danger spikes.
+- [x] **Immersive In-Context Action Outcome Dispatches (`components/ActionOutcomeDispatch.tsx`)**:
+  - Replaced the intrusive static notification banner that used to sit atop the action slot drawer and cause layout shifting.
+  - Added in-slot outcome badges showing dice math and tier directly on the action card the player interacted with.
+  - Added floating encrypted Hawks / SAPS radio scanner intercept card with adrenaline-responsive visuals, audio chirps, auto-dismiss countdown bar, and manual dismissal.
+- [x] **Web Audio Adrenaline Soundscape Expansion (`engine/soundscape.ts`)**:
+  - Added dynamic double-pulse heartbeat generator (`playHeartbeat`) scaling with adrenaline intensity.
+  - Added encrypted tactical scanner squelch (`playScannerSquelch`).
+  - Added cinematic cutscene brass/bass stinger chords (`playCutsceneStinger`).
+  - Added escalated action outcome audio (`playAdrenalineOutcome`) scaling with adrenaline level.
+- [x] **Cinematic Widescreen Cutscenes (`types/cutscenes.ts`, `data/cutscenes.ts`, `components/CutsceneModal.tsx`)**:
+  - Authored full-screen 2.39:1 letterboxed cinematic cutscenes with Ken Burns slow-zoom for all 5 regional climaxes:
+    - Story 1: *The Iron Convoy at Berth 14* (`cutscene_berth14_breach`)
+    - Story 2: *The Megawatt Overload* (`cutscene_kendon_sabotage`)
+    - Story 3: *Midnight Off Port Nolloth* (`cutscene_namaqua_drop`)
+    - Story 4: *Gale-Force Strike at Berth 109* (`cutscene_cape_dockers`)
+    - Story 5: *Breaching the Drakensberg Redoubt* (`cutscene_octagon_bunker`)
+  - Multi-beat narrative typewriter delivery, speaker portraits, location timecodes, keyboard navigation (`Space`/`Enter`/`Esc`), and seamless climax showdown event launching.
+- [x] **Cinematic Multi-Phase Ending Scenes (`components/EndingScreen.tsx`)**:
+  - Redesigned the ending screen from a plain modal into an unforgettable cinematic multi-stage experience with dedicated 16:9 widescreen artwork.
+  - 3 interactive epilogue phases: `01 // CINEMATIC SCENE` (widescreen artwork, summary quote, epilogue paragraphs), `02 // DISTRICT AFTERMATH` (district power shifts, final faction standing), and `03 // FIXER EVALUATION` (leaderboard, global percentile, tactical commendation badges).
+- [x] **FAL.ai Flux Schnell Visual Asset Generation (14 New Cinematic Assets)**:
+  - Generated 5 widescreen climax cutscene illustrations (`public/assets/cutscenes/*.jpg`).
+  - Generated 9 widescreen ending scene epilogue illustrations (`public/assets/endings/*.jpg`).
+  - 100% verified asset presence on disk.
+- [x] **10-Language Multilingual Parity & Full Test Suite (115/115 Tests Passing)**:
+  - Injected 17 new translation keys across all 10 official South African regional languages (`en`, `zu`, `xh`, `af`, `st`, `nso`, `tn`, `ts`, `ss`, `ve`), maintaining exact 1:1 parity (1,853 canonical keys each) with 0 missing keys.
+  - Added dedicated Vitest test suite `engine/__tests__/adrenalineAndCutscenes.test.ts` (115 passing tests across 8 test suites).
+
+---
+
+### Phase 28: Voiceover Stems & Audio Atmosphere Expansion 📋
 - [ ] Authentic multilingual audio voice stabs for key NPC introductions across all official South African languages.
 - [ ] Regional procedural soundscape extensions: Highveld thunder and mine lifts, desert wind and Atlantic shore breaks, Cape Doctor gales, and bunker emergency klaxons.
+
 
 

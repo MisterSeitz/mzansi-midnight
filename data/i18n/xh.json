@@ -1834,5 +1834,22 @@
   "ui.unlocked": "IVULIWE",
   "ui.unused_dice_warning": "Iidayisi Zentshukumo Ezingasetyenziswanga Eziseleyo Namhlanje",
   "ui.used_today": "KUSETYENZISWE NAMHLANJE",
-  "ui.wipe_data": "Cima Idatha"
+  "ui.wipe_data": "Cima Idatha",
+  "ui.compromised": "KUBEKWE ENGOCINI",
+  "ui.blowback": "UKUBETHELEKA / UKUSILELA",
+  "ending.tab_scene": "INDAWO YEBHANYABHANYA",
+  "ending.tab_aftermath": "ISIPHUMO SIKATHITHI",
+  "ending.tab_fixer": "UVAVANYO LWE-FIXER",
+  "ending.district_power_shift": "Utshintsho Lwamandla Esithili & Imiphumela",
+  "ending.final_ledger": "Incwadi Yokugqibela Ye-Fixer",
+  "advisor.registry_title": "Ubhaliso Lwe-Fixer yaseThekwini",
+  "advisor.commendations_title": "Izincoko Zobuchule & Iimbasa",
+  "ui.previous_phase": "Eyangaphambili",
+  "ui.next_phase": "Icandelo Elilandelayo ►",
+  "cutscene.live_wire": "UVIMBA WOCINGO OPHILAYO // UKUPHAZAMISA KWEZOBUCHULE",
+  "cutscene.beat": "ISIGABA",
+  "cutscene.skip": "TSHIBA INDAWO [ESC]",
+  "cutscene.controls_hint": "CINEZELA ISIKHALA / ENTER UKUQHUBEKA • ESC UKUTSHIBA",
+  "cutscene.next_beat": "QHUBEKA KWISIGABA ESILANDELAYO [SPACE ►]",
+  "ui.outcome_result": "IMBUYKEZO // ISIPHUMO"
 }

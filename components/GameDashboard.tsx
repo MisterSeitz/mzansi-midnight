@@ -40,6 +40,20 @@ import ContactDialogueModal, {
   hasAvailableUnclaimedDialogueReward,
 } from './ContactDialogueModal';
 import { DEFAULT_GAME_SETTINGS, GameSettings } from '../types/settings';
+import { calculateAdrenaline } from '../engine/adrenaline';
+import { AdrenalineVignette } from './AdrenalineVignette';
+import { ActionOutcomeDispatch } from './ActionOutcomeDispatch';
+import { CutsceneModal } from './CutsceneModal';
+import { STORY_CUTSCENES } from '../data/cutscenes';
+
+const EVENT_TO_CUTSCENE_MAP: Record<string, string> = {
+  evt_climax_berth14: 'cutscene_berth14_breach',
+  evt_highveld_climax_kendon: 'cutscene_kendon_sabotage',
+  evt_namaqua_climax_arms_drop: 'cutscene_namaqua_drop',
+  evt_climax_pier109: 'cutscene_cape_dockers',
+  evt_summit_breach_climax: 'cutscene_octagon_bunker',
+};
+
 import {
   t,
   getLocalizedNode,
@@ -786,6 +800,23 @@ export const GameDashboard: React.FC<{
     narrative: string;
     summary: string;
   } | null>(null);
+  const [lastResolvedSlotId, setLastResolvedSlotId] = useState<string | null>(null);
+  const [activeCutsceneId, setActiveCutsceneId] = useState<string | null>(null);
+  const [seenCutsceneIds, setSeenCutsceneIds] = useState<Set<string>>(new Set());
+
+  const adrenaline = calculateAdrenaline(state);
+
+  // Auto-trigger cinematic cutscene when a climax showdown event reaches the queue
+  useEffect(() => {
+    const topEventId = state.triggeredEventsQueue[0];
+    if (topEventId && EVENT_TO_CUTSCENE_MAP[topEventId]) {
+      const cutsceneId = EVENT_TO_CUTSCENE_MAP[topEventId];
+      if (!seenCutsceneIds.has(cutsceneId)) {
+        setActiveCutsceneId(cutsceneId);
+      }
+    }
+  }, [state.triggeredEventsQueue, seenCutsceneIds]);
+
 
   // Auto-open tutorial on first-ever map visit (if enabled in settings)
   useEffect(() => {
@@ -907,12 +938,13 @@ export const GameDashboard: React.FC<{
         finalRoll >= 6 ? 'clean' : finalRoll >= 4 ? 'compromised' : 'failure';
       const chosenOutcome = slot.outcomes[tier];
 
-      soundscape.playOutcome(tier);
+      soundscape.playAdrenalineOutcome(tier, adrenaline.level);
       triggerHaptic(
         tier === 'clean' ? 'success' : tier === 'compromised' ? 'impact' : 'heavy'
       );
+      setLastResolvedSlotId(slotId);
       setLastRollFeedback({
-        title: slot.title,
+        title: getLocalizedSlot(slot, currentLang).title,
         rollMath: `Die ${die.value} ${totalMod >= 0 ? `+ ${totalMod}` : `- ${Math.abs(totalMod)}`} = ${finalRoll}`,
         tier,
         narrative: chosenOutcome.narrativeLog,
@@ -1128,6 +1160,35 @@ export const GameDashboard: React.FC<{
                 {t('ui.status', 'STATUS', currentLang)}
               </span>
             </button>
+
+            {/* REAL-TIME ASCENDING ADRENALINE & TENSION METER */}
+            <div
+              className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-mono border flex items-center gap-1.5 ${
+                adrenaline.level >= 4
+                  ? 'bg-red-950/80 border-red-500 text-red-300 animate-pulse'
+                  : adrenaline.level >= 3
+                  ? 'bg-orange-950/60 border-orange-500 text-orange-300'
+                  : adrenaline.level >= 2
+                  ? 'bg-amber-950/40 border-amber-500 text-amber-300'
+                  : 'bg-emerald-950/30 border-emerald-700/60 text-emerald-400'
+              }`}
+              title={`Story Tension & Adrenaline: ${adrenaline.score}% (${adrenaline.levelName})`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  adrenaline.level >= 4
+                    ? 'bg-red-400 animate-ping'
+                    : adrenaline.level >= 3
+                    ? 'bg-orange-400'
+                    : adrenaline.level >= 2
+                    ? 'bg-amber-400'
+                    : 'bg-emerald-400'
+                }`}
+              />
+              <span className="font-bold">{adrenaline.levelName}</span>
+              <span className="hidden sm:inline opacity-75">{adrenaline.score}%</span>
+            </div>
+
             <div
               className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-mono border ${
                 state.loadSheddingStage === 6
@@ -1670,50 +1731,6 @@ export const GameDashboard: React.FC<{
                 </div>
               )}
 
-              {/* LIVE ROLL RESULT CALLOUT BANNER (VISIBLE ON MOBILE & DESKTOP) */}
-              {lastRollFeedback && (
-                <div
-                  className={`p-3.5 rounded-xl border-2 space-y-1.5 transition-all ${
-                    lastRollFeedback.tier === 'clean'
-                      ? 'bg-emerald-950/35 border-emerald-500/80'
-                      : lastRollFeedback.tier === 'compromised'
-                      ? 'bg-amber-950/35 border-amber-500/80'
-                      : 'bg-red-950/35 border-red-500/80'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2 font-mono text-[10px] uppercase">
-                    <span
-                      className={
-                        lastRollFeedback.tier === 'clean'
-                          ? 'text-emerald-300 font-bold'
-                          : lastRollFeedback.tier === 'compromised'
-                          ? 'text-amber-300 font-bold'
-                          : 'text-red-300 font-bold'
-                      }
-                    >
-                      {lastRollFeedback.tier === 'clean'
-                        ? 'CLEAN SUCCESS'
-                        : lastRollFeedback.tier === 'compromised'
-                        ? 'COMPROMISED'
-                        : 'BLOWBACK / FAILURE'}{' '}
-                      • [{lastRollFeedback.rollMath}]
-                    </span>
-                    <button
-                      onClick={() => setLastRollFeedback(null)}
-                      className="text-zinc-400 hover:text-white cursor-pointer"
-                    >
-                      [✕]
-                    </button>
-                  </div>
-                  <p className="text-xs text-zinc-100 leading-relaxed">
-                    {lastRollFeedback.narrative}
-                  </p>
-                  <div className="text-[11px] font-mono text-amber-300">
-                    {lastRollFeedback.summary}
-                  </div>
-                </div>
-              )}
-
               {/* SAPS ROADBLOCK INTERCEPT PROMPT IF CORRIDOR IS BLOCKED */}
               {isBlockedByRoadblock && (
                 <div className="p-4 rounded-xl border-2 border-red-600/80 bg-red-950/30 space-y-3">
@@ -1839,6 +1856,30 @@ export const GameDashboard: React.FC<{
                       <p className="text-xs text-zinc-400 mt-1">
                         {locSlot.description}
                       </p>
+
+                      {/* IN-SLOT RECENT RESOLUTION BADGE (IN-PLACE FEEDBACK WITHOUT TOP LAYOUT SHIFT) */}
+                      {lastResolvedSlotId === slot.id && lastRollFeedback && (
+                        <div
+                          className={`mt-2.5 p-2 rounded-lg font-mono text-[10px] flex items-center justify-between border animate-in zoom-in-95 duration-200 ${
+                            lastRollFeedback.tier === 'clean'
+                              ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-300'
+                              : lastRollFeedback.tier === 'compromised'
+                              ? 'bg-amber-950/70 border-amber-500/80 text-amber-300'
+                              : 'bg-red-950/70 border-red-500/80 text-red-300'
+                          }`}
+                        >
+                          <span className="font-bold">
+                            ✓ {lastRollFeedback.tier === 'clean'
+                              ? t('ui.clean_success', 'CLEAN SUCCESS', currentLang)
+                              : lastRollFeedback.tier === 'compromised'
+                              ? t('ui.compromised', 'COMPROMISED', currentLang)
+                              : t('ui.blowback', 'BLOWBACK / FAILURE', currentLang)}
+                          </span>
+                          <span className="text-zinc-400 font-normal">
+                            [{lastRollFeedback.rollMath}]
+                          </span>
+                        </div>
+                      )}
 
                       {missingItem && (
                         <div className="mt-2 text-[11px] font-mono text-red-400">
@@ -2371,6 +2412,30 @@ export const GameDashboard: React.FC<{
           }
         }}
       />
+
+      {/* 10. SCREEN EDGE ADRENALINE TENSION VIGNETTE */}
+      <AdrenalineVignette adrenaline={adrenaline} />
+
+      {/* 11. IMMERSIVE FLOATING ACTION OUTCOME DISPATCH */}
+      <ActionOutcomeDispatch
+        feedback={lastRollFeedback}
+        adrenaline={adrenaline}
+        lang={currentLang}
+        onDismiss={() => setLastRollFeedback(null)}
+      />
+
+      {/* 12. CINEMATIC STORY CLIMAX CUTSCENE MODAL */}
+      {activeCutsceneId && STORY_CUTSCENES[activeCutsceneId] && (
+        <CutsceneModal
+          cutscene={STORY_CUTSCENES[activeCutsceneId]}
+          lang={currentLang}
+          onComplete={() => {
+            const finishedCutscene = activeCutsceneId;
+            setSeenCutsceneIds((prev) => new Set([...prev, finishedCutscene]));
+            setActiveCutsceneId(null);
+          }}
+        />
+      )}
     </div>
   );
 };
