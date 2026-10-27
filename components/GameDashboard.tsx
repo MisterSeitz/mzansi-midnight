@@ -45,6 +45,11 @@ import { AdrenalineVignette } from './AdrenalineVignette';
 import { ActionOutcomeDispatch } from './ActionOutcomeDispatch';
 import { CutsceneModal } from './CutsceneModal';
 import { STORY_CUTSCENES } from '../data/cutscenes';
+import { LeaderboardModal } from './LeaderboardModal';
+import { UserProfileModal } from './UserProfileModal';
+import { getSavedUserProfile } from '../engine/cloudSync';
+import { UserProfile } from '../types/leaderboard';
+import { formatSpeedrunTime } from '../engine/scoringEngine';
 
 const EVENT_TO_CUTSCENE_MAP: Record<string, string> = {
   evt_climax_berth14: 'cutscene_berth14_breach',
@@ -803,6 +808,27 @@ export const GameDashboard: React.FC<{
   const [lastResolvedSlotId, setLastResolvedSlotId] = useState<string | null>(null);
   const [activeCutsceneId, setActiveCutsceneId] = useState<string | null>(null);
   const [seenCutsceneIds, setSeenCutsceneIds] = useState<Set<string>>(new Set());
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState<boolean>(false);
+  const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>(() =>
+    getSavedUserProfile()
+  );
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+
+  // Speedrun stopwatch tracker
+  useEffect(() => {
+    if (!state.runStartTime) {
+      setState((prev) => ({ ...prev, runStartTime: Date.now() }));
+    }
+    const interval = setInterval(() => {
+      if (state.runStartTime) {
+        setElapsedSeconds(
+          Math.max(0, Math.floor((Date.now() - state.runStartTime) / 1000))
+        );
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [state.runStartTime]);
 
   const adrenaline = calculateAdrenaline(state);
 
@@ -1260,8 +1286,16 @@ export const GameDashboard: React.FC<{
             </div>
           </div>
 
-          {/* 4 INVESTIGATOR STATS */}
-          <div className="flex gap-2.5 sm:gap-3 lg:border-l lg:border-zinc-800 lg:pl-4 text-[11px] sm:text-xs text-zinc-300">
+          {/* SPEEDRUN STOPWATCH & 4 INVESTIGATOR STATS */}
+          <div className="flex items-center gap-2.5 sm:gap-3 lg:border-l lg:border-zinc-800 lg:pl-4 text-[11px] sm:text-xs text-zinc-300">
+            <div
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-black/60 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-[10px] sm:text-[11px]"
+              title="Speedrun Elapsed Time"
+            >
+              <span>⏱️</span>
+              <span>{formatSpeedrunTime(elapsedSeconds)}</span>
+            </div>
+
             <span>
               {t('stat_abbr.street', 'STRT', currentLang)}:{' '}
               {state.stats.street >= 0
@@ -1286,8 +1320,28 @@ export const GameDashboard: React.FC<{
             </span>
           </div>
 
-          {/* BOARD, GUIDE, SAVE, SETTINGS & MENU CONTROLS */}
+          {/* BOARD, GUIDE, SCORES, VAULT, SAVE, SETTINGS & MENU CONTROLS */}
           <div className="flex items-center gap-1.5 sm:gap-2 lg:border-l lg:border-zinc-800 lg:pl-4">
+            <button
+              onClick={() => {
+                soundscape.playDieSelect();
+                setIsLeaderboardOpen(true);
+              }}
+              className="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/60 hover:border-amber-400 text-[10px] sm:text-[11px] text-amber-200 cursor-pointer flex items-center gap-1 font-mono font-semibold transition-colors"
+              title="Open Leaderboard, Speedruns & 25-Ending Completionists"
+            >
+              🏆 {t('ui.scores', 'SCORES', currentLang)}
+            </button>
+            <button
+              onClick={() => {
+                soundscape.playDieSelect();
+                setIsProfileOpen(true);
+              }}
+              className="px-2 py-1 rounded bg-cyan-950/40 border border-cyan-500/50 hover:border-cyan-400 text-[10px] sm:text-[11px] text-cyan-300 cursor-pointer flex items-center gap-1 font-mono transition-colors"
+              title="Operative Profile, Google Login & Cloud Vault"
+            >
+              👤 {userProfile.isGuest ? 'VAULT' : userProfile.displayName.substring(0, 8)}
+            </button>
             <button
               onClick={() => {
                 soundscape.playDieSelect();
@@ -2436,6 +2490,26 @@ export const GameDashboard: React.FC<{
           }}
         />
       )}
+
+      {/* 13. HIGH SCORES & SPEEDRUN LEADERBOARD MODAL */}
+      <LeaderboardModal
+        isOpen={isLeaderboardOpen}
+        onClose={() => setIsLeaderboardOpen(false)}
+        onOpenProfile={() => {
+          setIsLeaderboardOpen(false);
+          setIsProfileOpen(true);
+        }}
+        userProfile={userProfile}
+        lang={currentLang}
+      />
+
+      {/* 14. OPERATIVE PROFILE & CLOUD VAULT MODAL */}
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onProfileUpdated={(p) => setUserProfile(p)}
+        lang={currentLang}
+      />
     </div>
   );
 };

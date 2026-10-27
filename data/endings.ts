@@ -281,3 +281,16 @@ export const ACT_1_ENDINGS: Partial<Record<EndingId, ActEnding>> = {
       'TRY ACT 2 AGAIN: Complete either the "Trace Sovereign Pearl Trust" clock (at The Ridge or High Court) or the "Synthesize Super-Lab Telemetry" clock (at Northern Township Depot) before intercepting Flight ZS-900!',
   },
 };
+
+import { HIGHVELD_ENDINGS } from './story2HighveldEndings';
+import { NAMAQUA_ENDINGS } from './story3NamaquaEndings';
+import { CAPE_ENDINGS } from './story4CapeEndings';
+import { OCTAGON_ENDINGS } from './story5OctagonEndings';
+
+export const ALL_CAMPAIGN_ENDINGS: Record<EndingId, ActEnding> = {
+  ...(ACT_1_ENDINGS as Record<EndingId, ActEnding>),
+  ...(HIGHVELD_ENDINGS as Record<EndingId, ActEnding>),
+  ...(NAMAQUA_ENDINGS as Record<EndingId, ActEnding>),
+  ...(CAPE_ENDINGS as Record<EndingId, ActEnding>),
+  ...(OCTAGON_ENDINGS as Record<EndingId, ActEnding>),
+};

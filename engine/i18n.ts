@@ -19,6 +19,7 @@ import {
 import { ActEnding } from '../data/endings';
 import { CatalogItem } from '../data/itemsCatalog';
 import type { TacticalRecommendation } from './advisor';
+import type { StoryMetadata, KeystoneDossier } from '../types/campaign';
 
 import en from '../data/i18n/en.json';
 import zu from '../data/i18n/zu.json';
@@ -776,5 +777,44 @@ export function getLocalizedLogEntry(
   return entry;
 }
 
+/**
+ * Return localized story metadata for preview cards and briefings.
+ */
+export function getLocalizedStory(
+  story: StoryMetadata,
+  lang: SupportedLanguage = 'en'
+): StoryMetadata {
+  return {
+    ...story,
+    title: t(`story.${story.id}.title`, story.title, lang),
+    subtitle: t(`story.${story.id}.subtitle`, story.subtitle, lang),
+    region: t(`story.${story.id}.region`, story.region, lang),
+    era: t(`story.${story.id}.era`, story.era, lang),
+    protagonistName: t(`story.${story.id}.protagonist_name`, story.protagonistName, lang),
+    protagonistRole: t(`story.${story.id}.protagonist_role`, story.protagonistRole, lang),
+    synopsis: t(`story.${story.id}.synopsis`, story.synopsis, lang),
+    keystoneTitle: t(`story.${story.id}.keystone_title`, story.keystoneTitle, lang),
+    unlockConditionText: t(`story.${story.id}.unlock_condition`, story.unlockConditionText, lang),
+    regionalMechanic: t(`story.${story.id}.regional_mechanic`, story.regionalMechanic, lang),
+  };
+}
+
+/**
+ * Return localized keystone dossier data.
+ */
+export function getLocalizedKeystone(
+  keystone: KeystoneDossier,
+  lang: SupportedLanguage = 'en'
+): KeystoneDossier {
+  return {
+    ...keystone,
+    title: t(`keystone.${keystone.id}.title`, keystone.title, lang),
+    sourceLabel: t(`keystone.${keystone.id}.source_label`, keystone.sourceLabel, lang),
+    summary: t(`keystone.${keystone.id}.summary`, keystone.summary, lang),
+    gameplayEffect: t(`keystone.${keystone.id}.gameplay_effect`, keystone.gameplayEffect, lang),
+  };
+}
+
 export { SUPPORTED_LANGUAGES };
+
 

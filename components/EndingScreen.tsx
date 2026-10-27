@@ -11,8 +11,19 @@ import { OCTAGON_ENDINGS } from '../data/story5OctagonEndings';
 import { SupportedLanguage } from '../types/settings';
 import { t, getLocalizedEnding, getLocalizedFactionName } from '../engine/i18n';
 import { recordUnlockedEnding } from '../engine/storage';
-import { recordStoryCompletion } from '../engine/campaignStorage';
+import { recordStoryCompletion, loadCampaignProgression } from '../engine/campaignStorage';
 import { calculateFixerEvaluation } from '../engine/advisor';
+import {
+  calculateComprehensiveScore,
+  formatSpeedrunTime,
+} from '../engine/scoringEngine';
+import {
+  submitHighScore,
+  getSavedUserProfile,
+} from '../engine/cloudSync';
+import { evaluateAchievements } from '../engine/achievements';
+import { LeaderboardModal } from './LeaderboardModal';
+import { UserProfileModal } from './UserProfileModal';
 import { soundscape } from '../engine/soundscape';
 
 const ENDING_SCENE_ARTWORK_MAP: Record<string, string> = {
@@ -75,6 +86,12 @@ export const EndingScreen: React.FC<{
   onRestart,
 }) => {
   const [phase, setPhase] = useState<EndingPhase>('scene');
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isScoreSubmitted, setIsScoreSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userProfile, setUserProfile] = useState(() => getSavedUserProfile());
+
   const isOctagon = state.storyId === 'story_5_octagon';
   const isCape = state.storyId === 'story_4_cape';
   const isNamaqua = state.storyId === 'story_3_namaqua';
@@ -93,6 +110,19 @@ export const EndingScreen: React.FC<{
   const ending = getLocalizedEnding(rawEnding, lang);
   const evaluation = calculateFixerEvaluation(state, endingId);
   const artwork = ENDING_SCENE_ARTWORK_MAP[endingId] || '/assets/endings/ending_vigilante.jpg';
+
+  const progression = loadCampaignProgression();
+  const elapsedSeconds =
+    state.runStartTime && state.runStartTime > 0
+      ? Math.max(1, Math.floor((Date.now() - state.runStartTime) / 1000))
+      : 245;
+
+  const comprehensiveScore = calculateComprehensiveScore({
+    state,
+    endingId,
+    elapsedSeconds,
+    campaignProgression: progression,
+  });
 
   const canContinueToAct2 =
     Boolean(onContinueToAct2) &&
@@ -113,8 +143,63 @@ export const EndingScreen: React.FC<{
     recordUnlockedEnding(endingId, state);
     const sId = state.storyId || 'story_1_ethekwini';
     recordStoryCompletion(sId, endingId);
+    evaluateAchievements({
+      state,
+      progression,
+      lastEntry: {
+        score: comprehensiveScore.totalScore,
+        completionSeconds: elapsedSeconds,
+        storyId: sId,
+        composure: state.composure,
+        cash: state.cash,
+      },
+    });
     soundscape.playCutsceneStinger('triumph');
   }, [endingId, state]);
+
+  const handleSubmitScore = async () => {
+    if (isSubmitting) return;
+    if (isScoreSubmitted) {
+      setIsLeaderboardOpen(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+    const sId = state.storyId || 'story_1_ethekwini';
+    const storyNames: Record<string, string> = {
+      story_1_ethekwini: 'eThekwini-Gold',
+      story_2_highveld: 'Highveld-Chrome',
+      story_3_namaqua: 'Namaqua-Diamond',
+      story_4_cape: 'Cape-Nocturne',
+      story_5_octagon: 'The Sovereign Octagon',
+    };
+
+    const unlockedMap = recordUnlockedEnding(endingId, state);
+
+    await submitHighScore({
+      userId: userProfile.isGuest ? undefined : userProfile.id,
+      userEmail: userProfile.email,
+      playerName: userProfile.displayName || 'Fixer-Operative',
+      playerAvatar: userProfile.avatarUrl,
+      score: comprehensiveScore.totalScore,
+      rankTitle: comprehensiveScore.rankTitle,
+      storyId: sId,
+      storyName: storyNames[sId] || 'Mzansi Campaign',
+      endingId,
+      endingTitle: ending.title,
+      completionSeconds: elapsedSeconds,
+      completionCycles: state.day,
+      endingsUnlockedCount: Object.keys(unlockedMap).length,
+      keystonesCount: progression.collectedKeystones.length,
+      composure: state.composure,
+      cash: state.cash,
+    });
+
+    setIsSubmitting(false);
+    setIsScoreSubmitted(true);
+    soundscape.playOutcome('clean');
+    setIsLeaderboardOpen(true);
+  };
 
   const themeClasses = {
     amber: {
@@ -354,76 +439,176 @@ export const EndingScreen: React.FC<{
                 </div>
               </div>
             </div>
-          )}
-
-          {/* PHASE 3: FIXER EVALUATION & LEADERBOARD */}
+          )}          {/* PHASE 3: COMPREHENSIVE FIXER EVALUATION & LEADERBOARD */}
           {phase === 'fixer' && (
-            <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* SYNDICATE BENCHMARK LEADERBOARD */}
-                <div className="p-4 sm:p-5 rounded-xl bg-zinc-900/80 border border-amber-500/30 font-mono text-xs space-y-3">
-                  <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+            <div className="space-y-5 animate-in fade-in duration-300 font-mono">
+              {/* APEX SCORE & SPEEDRUN HERO CARD */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-zinc-900/90 to-cyan-950/40 border-2 border-amber-500/50 shadow-2xl space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center font-black text-2xl shadow-lg ${
+                        comprehensiveScore.rankGrade === 'S+' || comprehensiveScore.rankGrade === 'S'
+                          ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300 shadow-yellow-500/30'
+                          : comprehensiveScore.rankGrade === 'A'
+                          ? 'border-cyan-400 bg-cyan-400/20 text-cyan-300 shadow-cyan-500/30'
+                          : 'border-white/30 bg-white/10 text-white shadow-white/10'
+                      }`}
+                    >
+                      {comprehensiveScore.rankGrade}
+                    </div>
+
                     <div>
-                      <div className="text-[10px] text-amber-400 uppercase">
-                        {t('advisor.registry_title', 'eThekwini Fixer Registry', lang)}
+                      <div className="text-[10px] text-amber-400 uppercase tracking-widest">
+                        Fixer Performance Docket
                       </div>
-                      <div className="text-base font-bold text-white">
-                        {evaluation.rankTitle}
+                      <div className="text-lg sm:text-xl font-black text-white uppercase tracking-wider">
+                        {comprehensiveScore.rankTitle}
+                      </div>
+                      <div className="text-xs text-white/50">
+                        Top {Math.max(1, Math.round(100 - comprehensiveScore.globalPercentile))}% Operative Ranking
                       </div>
                     </div>
-                    <span className="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[11px] font-bold">
-                      Top {100 - evaluation.globalPercentile}% Operative
-                    </span>
                   </div>
 
-                  <div className="space-y-1.5">
-                    {evaluation.leaderboard.map((row, idx) => (
-                      <div
-                        key={row.name}
-                        className={`flex items-center justify-between px-2.5 py-1.5 rounded ${
-                          row.isPlayer
-                            ? 'bg-amber-500/20 border border-amber-500/50 text-amber-200 font-semibold'
-                            : 'bg-zinc-950/60 text-zinc-400'
-                        }`}
-                      >
-                        <span className="truncate">
-                          #{idx + 1} {row.name}
-                        </span>
-                        <span className="shrink-0 font-mono">
-                          {row.score.toLocaleString()} pts
-                        </span>
+                  {/* Speedrun Time Banner */}
+                  <div className="flex items-center gap-4 bg-black/50 px-4 py-2 rounded-xl border border-white/10">
+                    <div className="text-right">
+                      <div className="text-[10px] text-white/40 uppercase">Speedrun Time</div>
+                      <div className="text-base sm:text-lg font-black text-cyan-400 flex items-center gap-1.5">
+                        <span>⏱️</span>
+                        <span>{formatSpeedrunTime(elapsedSeconds)}</span>
                       </div>
-                    ))}
+                    </div>
+
+                    <div className="h-8 w-px bg-white/10" />
+
+                    <div className="text-right">
+                      <div className="text-[10px] text-white/40 uppercase">Total Score</div>
+                      <div className="text-lg sm:text-xl font-black text-amber-300">
+                        {comprehensiveScore.totalScore.toLocaleString()} PTS
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* UNLOCKED RUN COMMENDATIONS */}
-                <div className="p-4 sm:p-5 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono text-xs space-y-3">
-                  <div className="text-[10px] text-cyan-400 uppercase border-b border-zinc-800 pb-2 font-bold">
-                    {t('advisor.commendations_title', 'Tactical Commendations & Badges', lang)} (
-                    {evaluation.commendations.filter((c) => c.unlocked).length}/
-                    {evaluation.commendations.length})
+                {/* Score Breakdown Vector Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+                  <div className="p-2.5 rounded-lg bg-black/40 border border-white/5">
+                    <div className="text-[10px] text-white/40 uppercase">Victory Base</div>
+                    <div className="font-bold text-white mt-0.5">
+                      +{comprehensiveScore.breakdown.baseVictory.toLocaleString()}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto">
-                    {evaluation.commendations.map((comm) => (
-                      <div
-                        key={comm.id}
-                        className={`p-2.5 rounded-lg border ${
-                          comm.unlocked
-                            ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200'
-                            : 'bg-zinc-950/50 border-zinc-800/80 text-zinc-500'
-                        }`}
-                      >
-                        <div className="text-[11px] font-semibold flex items-center justify-between">
-                          <span>{comm.title}</span>
-                          <span>{comm.unlocked ? '★' : '—'}</span>
-                        </div>
-                        <div className="text-[10px] opacity-80 mt-1 leading-snug">
-                          {comm.description}
-                        </div>
+
+                  <div className="p-2.5 rounded-lg bg-cyan-950/30 border border-cyan-500/20">
+                    <div className="text-[10px] text-cyan-400 uppercase">Speedrun</div>
+                    <div className="font-bold text-cyan-300 mt-0.5">
+                      +{comprehensiveScore.breakdown.speedrunBonus.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-black/40 border border-white/5">
+                    <div className="text-[10px] text-white/40 uppercase">Cycle Efficiency</div>
+                    <div className="font-bold text-white mt-0.5">
+                      +{comprehensiveScore.breakdown.cycleEfficiency.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-black/40 border border-white/5">
+                    <div className="text-[10px] text-white/40 uppercase">Composure</div>
+                    <div className="font-bold text-white mt-0.5">
+                      +{comprehensiveScore.breakdown.composureBonus.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/20">
+                    <div className="text-[10px] text-emerald-400 uppercase">Cash War-Chest</div>
+                    <div className="font-bold text-emerald-300 mt-0.5">
+                      +{comprehensiveScore.breakdown.cashRetained.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-black/40 border border-white/5">
+                    <div className="text-[10px] text-white/40 uppercase">Keystones</div>
+                    <div className="font-bold text-white mt-0.5">
+                      +{comprehensiveScore.breakdown.evidenceKeystones.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-500/20">
+                    <div className="text-[10px] text-amber-400 uppercase">Anthology (X/25)</div>
+                    <div className="font-bold text-amber-300 mt-0.5">
+                      +{comprehensiveScore.breakdown.anthologyCompletion.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Direct High Score Board Action Buttons */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSubmitScore}
+                      disabled={isSubmitting}
+                      className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-lg ${
+                        isScoreSubmitted
+                          ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/50 shadow-emerald-950/50'
+                          : 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-950/50'
+                      }`}
+                    >
+                      <span>🏆</span>
+                      <span>
+                        {isSubmitting
+                          ? 'Submitting Dossier...'
+                          : isScoreSubmitted
+                          ? '✓ Recorded // Open High Score Board'
+                          : 'Submit Score to High Score Board'}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => setIsProfileOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 border border-white/20 text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <span>👤</span>
+                      <span>Operative Vault & Cloud Save</span>
+                    </button>
+                  </div>
+
+                  <div className="text-[11px] text-white/40">
+                    {userProfile.isGuest ? 'Local Guest Record' : `Verified Cloud: ${userProfile.displayName}`}
+                  </div>
+                </div>
+              </div>
+
+              {/* UNLOCKED RUN COMMENDATIONS */}
+              <div className="p-4 sm:p-5 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono text-xs space-y-3">
+                <div className="text-[10px] text-cyan-400 uppercase border-b border-zinc-800 pb-2 font-bold flex items-center justify-between">
+                  <span>Tactical Commendations & Accolades</span>
+                  <span>
+                    {comprehensiveScore.commendations.filter((c) => c.unlocked).length}/
+                    {comprehensiveScore.commendations.length} Unlocked
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  {comprehensiveScore.commendations.map((comm) => (
+                    <div
+                      key={comm.id}
+                      className={`p-3 rounded-lg border flex flex-col justify-between gap-1 transition-all ${
+                        comm.unlocked
+                          ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200'
+                          : 'bg-zinc-950/50 border-zinc-800/80 text-zinc-500 opacity-60'
+                      }`}
+                    >
+                      <div className="text-[11px] font-semibold flex items-center justify-between">
+                        <span>{comm.title}</span>
+                        <span>{comm.unlocked ? '★' : '—'}</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="text-[10px] opacity-80 leading-snug">
+                        {comm.description}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -480,6 +665,26 @@ export const EndingScreen: React.FC<{
           </div>
         </div>
       </div>
+
+      {/* Leaderboard Modal */}
+      <LeaderboardModal
+        isOpen={isLeaderboardOpen}
+        onClose={() => setIsLeaderboardOpen(false)}
+        onOpenProfile={() => {
+          setIsLeaderboardOpen(false);
+          setIsProfileOpen(true);
+        }}
+        userProfile={userProfile}
+        lang={lang}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onProfileUpdated={(p) => setUserProfile(p)}
+        lang={lang}
+      />
     </div>
   );
 };

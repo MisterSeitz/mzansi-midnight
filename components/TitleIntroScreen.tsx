@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { soundscape } from '../engine/soundscape';
 import { SaveSlotId, SaveSlotRecord } from '../types/settings';
 import { EndingId } from '../types/game';
-import { ACT_1_ENDINGS } from '../data/endings';
+import { ALL_CAMPAIGN_ENDINGS } from '../data/endings';
 import {
   loadUnlockedEndings,
   MANUAL_SAVE_SLOT_IDS,
@@ -24,7 +24,16 @@ import {
 } from '../types/campaign';
 
 import { SupportedLanguage } from '../types/settings';
-import { t, getLocalizedEnding } from '../engine/i18n';
+import {
+  t,
+  getLocalizedEnding,
+  getLocalizedStory,
+  getLocalizedKeystone,
+} from '../engine/i18n';
+import { LeaderboardModal } from './LeaderboardModal';
+import { UserProfileModal } from './UserProfileModal';
+import { getSavedUserProfile } from '../engine/cloudSync';
+import { UserProfile } from '../types/leaderboard';
 
 type IntroMenuTab = 'main' | 'campaign' | 'new' | 'load' | 'archive' | 'briefing';
 
@@ -108,6 +117,40 @@ const ENDING_UNLOCK_HINTS: Record<EndingId, string> = {
   ending_octagon_vanished_watchers:
     'Story 5 Enigmatic Choice: Burn the master archive drives into ash and vanish into the Karoo night as silent guardians.',
 };
+
+function getEndingBadge(id: EndingId, lang: SupportedLanguage): string {
+  if (id.startsWith('ending_octagon_')) return t('story.badge.story5', 'STORY 5 // SOVEREIGN OCTAGON', lang);
+  if (id.startsWith('ending_cape_')) return t('story.badge.story4', 'STORY 4 // CAPE NOCTURNE', lang);
+  if (id.startsWith('ending_namaqua_')) return t('story.badge.story3', 'STORY 3 // NAMAQUA', lang);
+  if (id.startsWith('ending_highveld_')) return t('story.badge.story2', 'STORY 2 // HIGHVELD', lang);
+  if (id.startsWith('ending_act2_')) return t('story.badge.act2', 'STORY 1 // ACT 2 FINALE', lang);
+  return t('story.badge.act1', 'STORY 1 // ACT 1', lang);
+}
+
+function renderFormattedRule(text: string): React.ReactNode {
+  const parts = text.split(/(\[(?:clean|comp|blow|inv|threat|stealth)\][\s\S]*?\[\/(?:clean|comp|blow|inv|threat|stealth)\])/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('[clean]')) {
+      return <span key={idx} className="text-emerald-400 font-semibold">{part.slice(7, -8)}</span>;
+    }
+    if (part.startsWith('[comp]')) {
+      return <span key={idx} className="text-amber-400 font-semibold">{part.slice(6, -7)}</span>;
+    }
+    if (part.startsWith('[blow]')) {
+      return <span key={idx} className="text-red-400 font-semibold">{part.slice(6, -7)}</span>;
+    }
+    if (part.startsWith('[inv]')) {
+      return <span key={idx} className="text-amber-300 font-semibold">{part.slice(5, -6)}</span>;
+    }
+    if (part.startsWith('[threat]')) {
+      return <span key={idx} className="text-red-400 font-semibold">{part.slice(8, -9)}</span>;
+    }
+    if (part.startsWith('[stealth]')) {
+      return <span key={idx} className="text-emerald-400 font-semibold">{part.slice(9, -10)}</span>;
+    }
+    return part;
+  });
+}
 
 const NODE_DISPLAY_NAMES: Record<string, string> = {
   n1_safehouse: 'Safehouse (Room 404)',
@@ -314,6 +357,11 @@ export const TitleIntroScreen: React.FC<{
     const p = loadCampaignProgression();
     return p.activeStoryId || 'story_1_ethekwini';
   });
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>(() =>
+    getSavedUserProfile()
+  );
 
   const handleSelectStory = (storyId: StoryId) => {
     setActiveStory(storyId);
@@ -328,8 +376,10 @@ export const TitleIntroScreen: React.FC<{
   const unlockedEndings = loadUnlockedEndings();
   const unlockedEndingCount = Object.keys(unlockedEndings).length;
 
-  const activeStory =
-    CAMPAIGN_STORIES.find((s) => s.id === activeStoryId) || CAMPAIGN_STORIES[0];
+  const activeStory = getLocalizedStory(
+    CAMPAIGN_STORIES.find((s) => s.id === activeStoryId) || CAMPAIGN_STORIES[0],
+    lang
+  );
   const storyTheme = COLOR_THEMES[activeStory.accentColor] || COLOR_THEMES.amber;
   const blackoutInfo =
     STORY_BLACKOUT_INFO[activeStory.id] || STORY_BLACKOUT_INFO.story_1_ethekwini;
@@ -369,8 +419,36 @@ export const TitleIntroScreen: React.FC<{
               {activeStory.caseDocket}
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-zinc-400 hidden sm:inline uppercase">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live High Score Board button */}
+            <button
+              onClick={() => {
+                soundscape.playDieSelect();
+                setIsLeaderboardOpen(true);
+              }}
+              className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-1.5 font-bold"
+              title={t('scores.tooltip', 'Open High Scores, Speedruns & Completionist Board', lang)}
+            >
+              <span>🏆</span>
+              <span>{t('scores.btn', 'Scores & Speedruns', lang)}</span>
+            </button>
+
+            {/* Google Profile & Cloud Save */}
+            <button
+              onClick={() => {
+                soundscape.playDieSelect();
+                setIsProfileOpen(true);
+              }}
+              className="px-2.5 py-1 rounded bg-cyan-950/40 hover:bg-cyan-900/40 border border-cyan-500/50 text-cyan-300 uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-1.5"
+              title={t('profile.tooltip', 'Operative Profile, Google Login & Cloud Backup', lang)}
+            >
+              <span>👤</span>
+              <span className="hidden sm:inline">
+                {userProfile.isGuest ? t('auth.sign_in', 'Sign in', lang) : userProfile.displayName}
+              </span>
+            </button>
+
+            <span className="text-zinc-400 hidden md:inline uppercase">
               {activeStory.region}
             </span>
             <button
@@ -552,9 +630,19 @@ export const TitleIntroScreen: React.FC<{
                   </div>
                 </div>
                 <div className="flex items-center gap-2 self-end sm:self-center font-mono text-xs text-amber-300">
-                  <span>{unlockedStoryCount}/5 Unlocked</span>
+                  <span>
+                    {t('campaign.stories_unlocked_stat', '{count}/5 Unlocked', lang).replace(
+                      '{count}',
+                      String(unlockedStoryCount)
+                    )}
+                  </span>
                   <span>•</span>
-                  <span>{collectedKeystoneCount}/4 Keystones</span>
+                  <span>
+                    {t('campaign.keystones_stat', '{count}/4 Keystones', lang).replace(
+                      '{count}',
+                      String(collectedKeystoneCount)
+                    )}
+                  </span>
                   <span className="text-zinc-400 group-hover:translate-x-1 transition-transform">→</span>
                 </div>
               </div>
@@ -643,39 +731,46 @@ export const TitleIntroScreen: React.FC<{
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/90 space-y-1">
                   <div className="text-[11px] font-mono uppercase text-amber-400">
-                    01. Daily Action Dice
+                    {t('intro.rules.rule1_title', '01. Daily Action Dice', lang)}
                   </div>
                   <div className="text-xs text-zinc-300 leading-relaxed">
-                    Roll 3–5 dice each cycle based on Composure. Preview exact{' '}
-                    <span className="text-emerald-400">6+ Clean</span>,{' '}
-                    <span className="text-amber-400">4–5 Compromised</span>, or{' '}
-                    <span className="text-red-400">1–3 Blowback</span> odds before
-                    committing.
+                    {renderFormattedRule(
+                      t(
+                        'intro.rules.rule1_desc',
+                        'Roll 3–5 dice each cycle based on Composure. Preview exact [clean]6+ Clean[/clean], [comp]4–5 Compromised[/comp], or [blow]1–3 Blowback[/blow] odds before committing.',
+                        lang
+                      )
+                    )}
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/90 space-y-1">
                   <div className="text-[11px] font-mono uppercase text-red-400">
-                    02. Ticking Clocks
+                    {t('intro.rules.rule2_title', '02. Ticking Clocks', lang)}
                   </div>
                   <div className="text-xs text-zinc-300 leading-relaxed">
-                    Complete{' '}
-                    <span className="text-amber-300">Investigation Clocks</span> to
-                    unlock the Berth 14 Finale before daily{' '}
-                    <span className="text-red-400">Threat Clocks</span> trigger a
-                    TRT sweep.
+                    {renderFormattedRule(
+                      t(
+                        'intro.rules.rule2_desc',
+                        'Complete [inv]Investigation Clocks[/inv] to unlock the Berth 14 Finale before daily [threat]Threat Clocks[/threat] trigger a TRT sweep.',
+                        lang
+                      )
+                    )}
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/90 space-y-1">
                   <div className="text-[11px] font-mono uppercase text-cyan-400">
-                    03. Load Shedding & Turf
+                    {t('intro.rules.rule3_title', '03. Load Shedding & Turf', lang)}
                   </div>
                   <div className="text-xs text-zinc-300 leading-relaxed">
-                    Stage 6 blackouts cut digital terminals (unless you burn R300
-                    diesel) but grant{' '}
-                    <span className="text-emerald-400">+2 stealth</span> on harbour
-                    infiltrations.
+                    {renderFormattedRule(
+                      t(
+                        'intro.rules.rule3_desc',
+                        'Stage 6 blackouts cut digital terminals (unless you burn R300 diesel) but grant [stealth]+2 stealth[/stealth] on harbour infiltrations.',
+                        lang
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -742,7 +837,8 @@ export const TitleIntroScreen: React.FC<{
 
               {/* 5 STORY CARDS GRID */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {CAMPAIGN_STORIES.map((story) => {
+                {CAMPAIGN_STORIES.map((rawStory) => {
+                  const story = getLocalizedStory(rawStory, lang);
                   const status = getStoryStatus(story.id, progression);
                   const isCompleted = status === 'completed';
                   const isUnlocked = status === 'unlocked' || isCompleted;
@@ -786,7 +882,7 @@ export const TitleIntroScreen: React.FC<{
                           {/* TOP FLOATING BADGES */}
                           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
                             <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-black/80 text-white border border-zinc-700">
-                              STORY 0{story.number}
+                              {t('campaign.story_num', 'STORY 0{num}', lang).replace('{num}', String(story.number))}
                             </span>
                             {isCurrentActive && (
                               <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-amber-400 text-slate-950 shadow">
@@ -913,7 +1009,7 @@ export const TitleIntroScreen: React.FC<{
                             setInspectedStory(story);
                           }}
                           className="py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 font-mono text-xs cursor-pointer transition-colors"
-                          title="Inspect Story Dossier"
+                          title={t('campaign.inspect_dossier', 'Inspect Story Dossier', lang)}
                         >
                           🔍
                         </button>
@@ -940,7 +1036,8 @@ export const TitleIntroScreen: React.FC<{
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {Object.values(KEYSTONE_DOSSIERS).map((keystone) => {
+                  {Object.values(KEYSTONE_DOSSIERS).map((rawKeystone) => {
+                    const keystone = getLocalizedKeystone(rawKeystone, lang);
                     const isSecured = progression.collectedKeystones.includes(keystone.id);
                     return (
                       <button
@@ -960,9 +1057,16 @@ export const TitleIntroScreen: React.FC<{
                         <div>
                           <div className="flex items-center justify-between text-[10px] font-mono">
                             <span className={isSecured ? 'text-amber-400 font-bold' : 'text-zinc-500'}>
-                              {isSecured ? '★ SECURED' : '🔒 UNRECOVERED'}
+                              {isSecured
+                                ? t('campaign.secured_badge', '★ SECURED', lang)
+                                : t('campaign.unrecovered_badge', '🔒 UNRECOVERED', lang)}
                             </span>
-                            <span className="text-zinc-500">STORY 0{keystone.storyId.slice(6, 7)}</span>
+                            <span className="text-zinc-500">
+                              {t('campaign.story_num', 'STORY 0{num}', lang).replace(
+                                '{num}',
+                                keystone.storyId.slice(6, 7)
+                              )}
+                            </span>
                           </div>
                           <div className={`text-xs font-semibold mt-1 ${isSecured ? 'text-white' : 'text-zinc-400'}`}>
                             {keystone.title}
@@ -1067,7 +1171,11 @@ export const TitleIntroScreen: React.FC<{
                     {t('campaign.active_story_label', 'SELECT STORY / CHAPTER:', lang)}
                   </label>
                   <span className={`text-[11px] font-mono font-bold ${storyTheme.text}`}>
-                    STORY 0{activeStory.number} // {activeStory.title}
+                    {t('campaign.story_num', 'STORY 0{num}', lang).replace(
+                      '{num}',
+                      String(activeStory.number)
+                    )}{' '}
+                    // {activeStory.title}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
@@ -1076,6 +1184,7 @@ export const TitleIntroScreen: React.FC<{
                     const isUnlocked = status === 'unlocked' || status === 'completed';
                     const isSelected = s.id === activeStoryId;
                     const pillTheme = COLOR_THEMES[s.accentColor] || COLOR_THEMES.amber;
+                    const localizedStory = getLocalizedStory(s, lang);
                     return (
                       <button
                         key={s.id}
@@ -1094,7 +1203,7 @@ export const TitleIntroScreen: React.FC<{
                         }`}
                       >
                         <span>{isUnlocked ? `0${s.number}` : '🔒'}</span>
-                        <span>{s.title}</span>
+                        <span>{localizedStory.title}</span>
                       </button>
                     );
                   })}
@@ -1108,15 +1217,9 @@ export const TitleIntroScreen: React.FC<{
                     {t('intro.choose_mode', '2. Choose Investigation Launch Mode:', lang)}
                   </label>
                   <span className={`text-[10px] font-mono font-semibold ${storyTheme.text}`}>
-                    {activeStoryId === 'story_5_octagon'
-                      ? 'ACTIVE: STORY 05 // THE SOVEREIGN OCTAGON'
-                      : activeStoryId === 'story_4_cape'
-                      ? 'ACTIVE: STORY 04 // CAPE-NOCTURNE'
-                      : activeStoryId === 'story_3_namaqua'
-                      ? 'ACTIVE: STORY 03 // NAMAQUA-DIAMOND'
-                      : activeStoryId === 'story_2_highveld'
-                      ? 'ACTIVE: STORY 02 // HIGHVELD-CHROME'
-                      : 'ACTIVE: STORY 01 // ETHEKWINI-GOLD'}
+                    {t('campaign.active_story_tag', 'ACTIVE: STORY 0{num} // {title}', lang)
+                      .replace('{num}', String(activeStory.number))
+                      .replace('{title}', activeStory.title.toUpperCase())}
                   </span>
                 </div>
 
@@ -1396,12 +1499,28 @@ export const TitleIntroScreen: React.FC<{
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 pb-3">
                 <div>
                   <div className="text-[11px] font-mono uppercase tracking-widest text-purple-400">
-                    CLASSIFIED EPILOGUE ARCHIVE // {unlockedEndingCount} OF 8
-                    TIMELINES UNLOCKED (
-                    {Math.round((unlockedEndingCount / 8) * 100)}%)
+                    {t(
+                      'intro.archive_header_fmt',
+                      'CLASSIFIED EPILOGUE ARCHIVE // {count} OF {total} TIMELINES UNLOCKED ({pct}%)',
+                      lang
+                    )
+                      .replace('{count}', String(unlockedEndingCount))
+                      .replace('{total}', String(ALL_ENDING_IDS.length))
+                      .replace(
+                        '{pct}',
+                        String(
+                          Math.round(
+                            (unlockedEndingCount / ALL_ENDING_IDS.length) * 100
+                          )
+                        )
+                      )}
                   </div>
                   <h2 className="text-base sm:text-lg font-semibold text-white">
-                    Completed Case File Outcomes (Act 1 &amp; Act 2)
+                    {t(
+                      'intro.archive_subtitle',
+                      'Completed Case File Outcomes (Stories 1–5)',
+                      lang
+                    )}
                   </h2>
                 </div>
                 <button
@@ -1416,15 +1535,16 @@ export const TitleIntroScreen: React.FC<{
               <div className="w-full h-2 rounded-full bg-zinc-950 border border-zinc-800 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-amber-500 via-purple-500 to-cyan-400 transition-all duration-500"
-                  style={{ width: `${(unlockedEndingCount / 8) * 100}%` }}
+                  style={{
+                    width: `${(unlockedEndingCount / ALL_ENDING_IDS.length) * 100}%`,
+                  }}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {ALL_ENDING_IDS.map((endId, idx) => {
-                  const endingDef = ACT_1_ENDINGS[endId];
+                  const endingDef = ALL_CAMPAIGN_ENDINGS[endId];
                   const record = unlockedEndings[endId];
-                  const isAct2 = endId.startsWith('ending_act2_');
 
                   return (
                     <div
@@ -1442,7 +1562,7 @@ export const TitleIntroScreen: React.FC<{
                               record ? 'text-purple-300' : 'text-zinc-500'
                             }
                           >
-                            0{idx + 1} // {isAct2 ? 'ACT 2 FINALE' : 'ACT 1'}{' '}
+                            {String(idx + 1).padStart(2, '0')} // {getEndingBadge(endId, lang)}{' '}
                           </span>
                           {record ? (
                             <span className="px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-600/50 text-emerald-300">
@@ -1456,13 +1576,31 @@ export const TitleIntroScreen: React.FC<{
                         </div>
 
                         <h3 className="text-sm font-semibold text-white">
-                          {record ? t(`ending.${endId}.title`, endingDef?.title || endId, lang) : t('ui.classified', 'Classified Case Outcome', lang)}
+                          {record
+                            ? t(
+                                `ending.${endId}.title`,
+                                endingDef?.title || endId,
+                                lang
+                              )
+                            : t(
+                                'intro.classified_outcome',
+                                'Classified Case Outcome',
+                                lang
+                              )}
                         </h3>
 
                         <p className="text-xs text-zinc-400 leading-relaxed">
                           {record
-                            ? t(`ending.${endId}.quote`, endingDef?.summaryQuote || '', lang)
-                            : t(`ending_hint.${endId}`, ENDING_UNLOCK_HINTS[endId], lang)}
+                            ? t(
+                                `ending.${endId}.quote`,
+                                endingDef?.summaryQuote || '',
+                                lang
+                              )
+                            : t(
+                                `ending_hint.${endId}`,
+                                ENDING_UNLOCK_HINTS[endId],
+                                lang
+                              )}
                         </p>
                       </div>
 
@@ -1702,7 +1840,11 @@ export const TitleIntroScreen: React.FC<{
                       <strong>New Game+ (Keep Gear &amp; +R1,000)</strong>,
                       letting you replay with your full hardware arsenal and
                       veteran stats to unlock all{' '}
-                      <strong>8/8 Case Endings</strong> in the Archive tab.
+                      <strong>
+                        {ALL_ENDING_IDS.length}/{ALL_ENDING_IDS.length}{' '}
+                        {t('intro.case_endings', 'Case Endings', lang)}
+                      </strong>{' '}
+                      in the Archive tab.
                     </li>
                     <li>
                       • <strong className="text-amber-300">eThekwini Fixer Leaderboard &amp; Badges:</strong>{' '}
@@ -1723,270 +1865,306 @@ export const TitleIntroScreen: React.FC<{
       </div>
 
       {/* ARCHIVED EPILOGUE READER MODAL */}
-      {inspectedEndingId && ACT_1_ENDINGS[inspectedEndingId] && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-2xl border border-purple-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
-            <div className="px-5 py-3.5 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-2">
-              <div className="font-mono text-xs uppercase tracking-wider text-purple-300">
-                {ACT_1_ENDINGS[inspectedEndingId].pathLabel}
-              </div>
-              <button
-                onClick={() => {
-                  soundscape.playDieSelect();
-                  setInspectedEndingId(null);
-                }}
-                className="px-2.5 py-1 rounded border border-zinc-700 bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
-              >
-                ✕ Close
-              </button>
-            </div>
-            <div className="p-5 overflow-y-auto space-y-4">
-              <div>
-                <div className="font-mono text-xs text-amber-400">
-                  {ACT_1_ENDINGS[inspectedEndingId].subtitle}
-                </div>
-                <h3 className="text-xl font-semibold text-white mt-0.5">
-                  {ACT_1_ENDINGS[inspectedEndingId].title}
-                </h3>
-                <p className="mt-2 text-xs italic text-zinc-300 border-l-2 border-purple-500/60 pl-3">
-                  {ACT_1_ENDINGS[inspectedEndingId].summaryQuote}
-                </p>
-              </div>
+      {inspectedEndingId && ALL_CAMPAIGN_ENDINGS[inspectedEndingId] && (() => {
+        const rawEnding = ALL_CAMPAIGN_ENDINGS[inspectedEndingId];
+        const ending = getLocalizedEnding(rawEnding, lang);
 
-              <div className="space-y-2.5 text-xs sm:text-sm text-zinc-200 leading-relaxed bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
-                {ACT_1_ENDINGS[inspectedEndingId].epilogueParagraphs.map(
-                  (p, i) => (
-                    <p key={i}>{p}</p>
-                  )
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {ACT_1_ENDINGS[inspectedEndingId].cityAftermath.map(
-                  (af, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800"
-                    >
-                      <div className="text-xs font-semibold text-purple-300">
-                        {af.heading}
-                      </div>
-                      <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                        {af.detail}
-                      </p>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STORY BRIEFING DOSSIER MODAL */}
-      {inspectedStory && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-2xl border border-amber-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            {/* MODAL HEADER */}
-            <div className="relative h-44 w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
-              <img
-                src={inspectedStory.imageArt}
-                alt={inspectedStory.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
-              <button
-                onClick={() => {
-                  soundscape.playDieSelect();
-                  setInspectedStory(null);
-                }}
-                className="absolute top-3 right-3 px-2.5 py-1 rounded border border-zinc-700 bg-black/80 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
-              >
-                ✕ Close
-              </button>
-              <div className="absolute bottom-3 left-4 right-4">
-                <div className="flex items-center gap-2 text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
-                  <span>STORY 0{inspectedStory.number}</span>
-                  <span>•</span>
-                  <span>{inspectedStory.caseDocket}</span>
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl rounded-2xl border border-purple-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
+              <div className="px-5 py-3.5 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-2">
+                <div className="font-mono text-xs uppercase tracking-wider text-purple-300">
+                  {ending.pathLabel}
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
-                  {inspectedStory.title}
-                </h3>
-                <div className="text-xs text-amber-300 font-medium">
-                  {inspectedStory.subtitle} — {inspectedStory.region}
-                </div>
-              </div>
-            </div>
-
-            {/* MODAL BODY */}
-            <div className="p-5 overflow-y-auto space-y-4 text-xs">
-              <div className="space-y-1">
-                <div className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
-                  {t('campaign.modal_synopsis', 'OPERATIONAL SYNOPSIS', lang)}
-                </div>
-                <p className="text-zinc-200 text-xs sm:text-sm leading-relaxed bg-zinc-900/60 p-3.5 rounded-xl border border-zinc-800">
-                  {inspectedStory.synopsis}
-                </p>
-              </div>
-
-              {/* PROTAGONIST & ERA */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono space-y-1">
-                  <div className="text-[10px] text-zinc-400 uppercase">
-                    {t('campaign.modal_protagonist', 'PROTAGONIST DOSSIER', lang)}
-                  </div>
-                  <div className="text-sm font-semibold text-white">
-                    {inspectedStory.protagonistName}
-                  </div>
-                  <div className="text-[11px] text-amber-400">
-                    {inspectedStory.protagonistRole}
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono space-y-1">
-                  <div className="text-[10px] text-zinc-400 uppercase">
-                    {t('campaign.modal_era', 'TIMELINE & STRUCTURE', lang)}
-                  </div>
-                  <div className="text-sm font-semibold text-white">
-                    {inspectedStory.era}
-                  </div>
-                  <div className="text-[11px] text-zinc-400">
-                    {inspectedStory.region}
-                  </div>
-                </div>
-              </div>
-
-              {/* REGIONAL MECHANICS */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
-                <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">
-                  {t('campaign.modal_mechanics', 'REGIONAL OPERATIONAL MECHANICS', lang)}
-                </div>
-                <p className="text-zinc-300 text-xs leading-relaxed">
-                  {inspectedStory.regionalMechanic}
-                </p>
-              </div>
-
-              {/* FACTIONS */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2">
-                <div className="font-mono text-[10px] text-amber-400 uppercase tracking-wider">
-                  {t('campaign.modal_factions', 'LOCAL THEATRE FACTIONS', lang)}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {inspectedStory.factions.map((f, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]"
-                    >
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* KEYSTONE TARGET */}
-              <div className="p-3.5 rounded-xl bg-purple-950/25 border border-purple-500/50 space-y-1">
-                <div className="font-mono text-[10px] text-purple-300 font-bold uppercase tracking-wider">
-                  ★ {t('campaign.modal_keystone_target', 'KEYSTONE EXTRACTION TARGET', lang)}
-                </div>
-                <div className="text-sm font-semibold text-white">
-                  {inspectedStory.keystoneTitle}
-                </div>
-                <p className="text-[11px] text-zinc-300 leading-relaxed">
-                  {inspectedStory.keystoneSummary}
-                </p>
-              </div>
-            </div>
-
-            {/* MODAL FOOTER */}
-            <div className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between gap-3">
-              <span className="font-mono text-xs text-zinc-400">
-                {inspectedStory.isPlayable
-                  ? 'Ready to infiltrate.'
-                  : inspectedStory.unlockConditionText}
-              </span>
-              {inspectedStory.isPlayable ? (
                 <button
                   onClick={() => {
-                    soundscape.playOutcome('clean');
-                    handleSelectStory(inspectedStory.id);
-                    setInspectedStory(null);
-                    setActiveTab('new');
+                    soundscape.playDieSelect();
+                    setInspectedEndingId(null);
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer transition-transform active:scale-95"
+                  className="px-2.5 py-1 rounded border border-zinc-700 bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
                 >
-                  {t('campaign.launch_operation', 'Launch Operation →', lang)}
+                  ✕ Close
                 </button>
-              ) : (
-                <button
-                  disabled
-                  className="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-500 font-mono text-xs cursor-not-allowed border border-zinc-700"
-                >
-                  {t('campaign.locked', 'Classified / Locked', lang)}
-                </button>
-              )}
+              </div>
+              <div className="p-5 overflow-y-auto space-y-4">
+                <div>
+                  <div className="font-mono text-xs text-amber-400">
+                    {ending.subtitle}
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mt-0.5">
+                    {ending.title}
+                  </h3>
+                  <p className="mt-2 text-xs italic text-zinc-300 border-l-2 border-purple-500/60 pl-3">
+                    {ending.summaryQuote}
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 text-xs sm:text-sm text-zinc-200 leading-relaxed bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+                  {ending.epilogueParagraphs.map(
+                    (p, i) => (
+                      <p key={i}>{p}</p>
+                    )
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {ending.cityAftermath.map(
+                    (af, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800"
+                      >
+                        <div className="text-xs font-semibold text-purple-300">
+                          {af.heading}
+                        </div>
+                        <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                          {af.detail}
+                        </p>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
+
+      {/* STORY BRIEFING DOSSIER MODAL */}
+      {inspectedStory && (() => {
+        const story = getLocalizedStory(inspectedStory, lang);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl rounded-2xl border border-amber-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              {/* MODAL HEADER */}
+              <div className="relative h-44 w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
+                <img
+                  src={story.imageArt}
+                  alt={story.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+                <button
+                  onClick={() => {
+                    soundscape.playDieSelect();
+                    setInspectedStory(null);
+                  }}
+                  className="absolute top-3 right-3 px-2.5 py-1 rounded border border-zinc-700 bg-black/80 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
+                >
+                  ✕ Close
+                </button>
+                <div className="absolute bottom-3 left-4 right-4">
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                    <span>
+                      {t('campaign.story_num', 'STORY 0{num}', lang).replace(
+                        '{num}',
+                        String(story.number)
+                      )}
+                    </span>
+                    <span>•</span>
+                    <span>{story.caseDocket}</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
+                    {story.title}
+                  </h3>
+                  <div className="text-xs text-amber-300 font-medium">
+                    {story.subtitle} — {story.region}
+                  </div>
+                </div>
+              </div>
+
+              {/* MODAL BODY */}
+              <div className="p-5 overflow-y-auto space-y-4 text-xs">
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
+                    {t('campaign.modal_synopsis', 'OPERATIONAL SYNOPSIS', lang)}
+                  </div>
+                  <p className="text-zinc-200 text-xs sm:text-sm leading-relaxed bg-zinc-900/60 p-3.5 rounded-xl border border-zinc-800">
+                    {story.synopsis}
+                  </p>
+                </div>
+
+                {/* PROTAGONIST & ERA */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono space-y-1">
+                    <div className="text-[10px] text-zinc-400 uppercase">
+                      {t('campaign.modal_protagonist', 'PROTAGONIST DOSSIER', lang)}
+                    </div>
+                    <div className="text-sm font-semibold text-white">
+                      {story.protagonistName}
+                    </div>
+                    <div className="text-[11px] text-amber-400">
+                      {story.protagonistRole}
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 font-mono space-y-1">
+                    <div className="text-[10px] text-zinc-400 uppercase">
+                      {t('campaign.modal_era', 'TIMELINE & STRUCTURE', lang)}
+                    </div>
+                    <div className="text-sm font-semibold text-white">
+                      {story.era}
+                    </div>
+                    <div className="text-[11px] text-zinc-400">
+                      {story.region}
+                    </div>
+                  </div>
+                </div>
+
+                {/* REGIONAL MECHANICS */}
+                <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+                  <div className="font-mono text-[10px] text-cyan-400 uppercase tracking-wider">
+                    {t('campaign.modal_mechanics', 'REGIONAL OPERATIONAL MECHANICS', lang)}
+                  </div>
+                  <p className="text-zinc-300 text-xs leading-relaxed">
+                    {story.regionalMechanic}
+                  </p>
+                </div>
+
+                {/* FACTIONS */}
+                <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2">
+                  <div className="font-mono text-[10px] text-amber-400 uppercase tracking-wider">
+                    {t('campaign.modal_factions', 'LOCAL THEATRE FACTIONS', lang)}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {story.factions.map((f, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-[11px]"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* KEYSTONE TARGET */}
+                <div className="p-3.5 rounded-xl bg-purple-950/25 border border-purple-500/50 space-y-1">
+                  <div className="font-mono text-[10px] text-purple-300 font-bold uppercase tracking-wider">
+                    ★ {t('campaign.modal_keystone_target', 'KEYSTONE EXTRACTION TARGET', lang)}
+                  </div>
+                  <div className="text-sm font-semibold text-white">
+                    {story.keystoneTitle}
+                  </div>
+                  <p className="text-[11px] text-zinc-300 leading-relaxed">
+                    {story.keystoneSummary}
+                  </p>
+                </div>
+              </div>
+
+              {/* MODAL FOOTER */}
+              <div className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between gap-3">
+                <span className="font-mono text-xs text-zinc-400">
+                  {story.isPlayable
+                    ? 'Ready to infiltrate.'
+                    : story.unlockConditionText}
+                </span>
+                {story.isPlayable ? (
+                  <button
+                    onClick={() => {
+                      soundscape.playOutcome('clean');
+                      handleSelectStory(story.id);
+                      setInspectedStory(null);
+                      setActiveTab('new');
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer transition-transform active:scale-95"
+                  >
+                    {t('campaign.launch_operation', 'Launch Operation →', lang)}
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-500 font-mono text-xs cursor-not-allowed border border-zinc-700"
+                  >
+                    {t('campaign.locked', 'Classified / Locked', lang)}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* KEYSTONE DOSSIER INSPECTOR MODAL */}
-      {inspectedKeystone && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-xl rounded-2xl border border-purple-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
-            <div className="px-5 py-3.5 bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-2">
-              <div className="font-mono text-xs uppercase tracking-wider text-purple-300 font-bold">
-                {inspectedKeystone.classification}
-              </div>
-              <button
-                onClick={() => {
-                  soundscape.playDieSelect();
-                  setInspectedKeystone(null);
-                }}
-                className="px-2.5 py-1 rounded border border-zinc-700 bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
-              >
-                ✕ Close
-              </button>
-            </div>
-
-            <div className="p-5 overflow-y-auto space-y-4">
-              <div>
-                <div className="font-mono text-xs text-amber-400">
-                  {inspectedKeystone.sourceLabel}
+      {inspectedKeystone && (() => {
+        const keystone = getLocalizedKeystone(inspectedKeystone, lang);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="w-full max-w-xl rounded-2xl border border-purple-500/60 bg-zinc-950 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
+              <div className="px-5 py-3.5 bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-2">
+                <div className="font-mono text-xs uppercase tracking-wider text-purple-300 font-bold">
+                  {keystone.classification}
                 </div>
-                <h3 className="text-xl font-bold text-white mt-0.5">
-                  {inspectedKeystone.title}
-                </h3>
-                <p className="mt-2 text-xs text-zinc-300 leading-relaxed">
-                  {inspectedKeystone.summary}
-                </p>
+                <button
+                  onClick={() => {
+                    soundscape.playDieSelect();
+                    setInspectedKeystone(null);
+                  }}
+                  className="px-2.5 py-1 rounded border border-zinc-700 bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white cursor-pointer"
+                >
+                  ✕ Close
+                </button>
               </div>
 
-              {/* FORENSIC EXCERPTS */}
-              <div className="space-y-2 bg-black/60 p-4 rounded-xl border border-zinc-800 font-mono text-xs">
-                <div className="text-[10px] text-zinc-400 uppercase tracking-widest border-b border-zinc-800/80 pb-1">
-                  EXCERPT TRANSCRIPT // UNREDACTED EVIDENCE
-                </div>
-                {inspectedKeystone.documentExcerpt.map((ex, i) => (
-                  <p key={i} className="text-amber-200/90 leading-relaxed italic">
-                    "{ex}"
+              <div className="p-5 overflow-y-auto space-y-4">
+                <div>
+                  <div className="font-mono text-xs text-amber-400">
+                    {keystone.sourceLabel}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mt-0.5">
+                    {keystone.title}
+                  </h3>
+                  <p className="mt-2 text-xs text-zinc-300 leading-relaxed">
+                    {keystone.summary}
                   </p>
-                ))}
-              </div>
-
-              {/* GAMEPLAY CARRYOVER BENEFIT */}
-              <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/50 space-y-1 font-mono text-xs">
-                <div className="text-emerald-400 font-bold uppercase tracking-wider">
-                  ★ CAMPAIGN CARRYOVER ADVANTAGE
                 </div>
-                <div className="text-zinc-200">
-                  {inspectedKeystone.gameplayEffect}
+
+                {/* FORENSIC EXCERPTS */}
+                <div className="space-y-2 bg-black/60 p-4 rounded-xl border border-zinc-800 font-mono text-xs">
+                  <div className="text-[10px] text-zinc-400 uppercase tracking-widest border-b border-zinc-800/80 pb-1">
+                    EXCERPT TRANSCRIPT // UNREDACTED EVIDENCE
+                  </div>
+                  {keystone.documentExcerpt.map((ex, i) => (
+                    <p key={i} className="text-amber-200/90 leading-relaxed italic">
+                      "{ex}"
+                    </p>
+                  ))}
+                </div>
+
+                {/* GAMEPLAY CARRYOVER BENEFIT */}
+                <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/50 space-y-1 font-mono text-xs">
+                  <div className="text-emerald-400 font-bold uppercase tracking-wider">
+                    ★ CAMPAIGN CARRYOVER ADVANTAGE
+                  </div>
+                  <div className="text-zinc-200">
+                    {keystone.gameplayEffect}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
+
+      {/* Leaderboard Modal */}
+      <LeaderboardModal
+        isOpen={isLeaderboardOpen}
+        onClose={() => setIsLeaderboardOpen(false)}
+        onOpenProfile={() => {
+          setIsLeaderboardOpen(false);
+          setIsProfileOpen(true);
+        }}
+        userProfile={userProfile}
+        lang={lang}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onProfileUpdated={(p) => setUserProfile(p)}
+        lang={lang}
+      />
     </div>
   );
 };

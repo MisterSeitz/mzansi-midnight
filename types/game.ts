@@ -181,5 +181,6 @@ export interface GameState {
   generatorActiveToday: boolean; // True if R300 diesel was spent today to bypass Stage 6
   usedPerksToday: FactionPerkId[]; // Perks used during the current cycle
   claimedDialogueRewards?: string[]; // One-time rewards claimed inside NPC dialogue trees
+  runStartTime?: number; // Timestamp in ms when active campaign run started (for speedrunning)
 }
 

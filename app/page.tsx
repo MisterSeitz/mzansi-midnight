@@ -182,6 +182,7 @@ export default function EthekwiniGoldGame() {
       }
     });
 
+    baseState.runStartTime = Date.now();
     setGameState(baseState);
     if (
       mode === 'act1_map' ||
