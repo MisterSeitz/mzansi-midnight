@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+.git
+.gemini
+.system_generated
+android
+coverage
+*.md
+docs
+scripts
+.env.local
+.env*.local
+

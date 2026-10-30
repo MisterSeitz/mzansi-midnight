@@ -185,9 +185,10 @@ For complete developer guidelines on authoring new narrative campaigns or expand
 ## Development Commands
 
 - `npm run dev` — Start the Next.js development server at `http://localhost:3000`
-- `npm test` — Run the automated `vitest` unit test suites (107 tests total across 7 test suites)
+- `npm test` — Run the automated `vitest` unit test suites (115 tests total across 8 test suites)
 - `npx tsc --noEmit` — Run TypeScript typechecking across all game modules
-- `npm run build` — Build production bundle
+- `npm run build` — Build production bundle (`out/` static export)
+- `npm start` — Run ultra-low-memory production server (`server.mjs`) for Host Africa HCODE & PaaS (<30MB RAM)
 - `npm run cap:sync` — Build Next.js static export and sync web assets to Android
 - `npm run cap:open` — Open the native project in Android Studio
 - `npm run cap:build` — Build standalone Android Debug APK (`android/app/build/outputs/apk/debug/app-debug.apk`)
@@ -197,6 +198,7 @@ For complete developer guidelines on authoring new narrative campaigns or expand
 - `node scripts/build-master-i18n.mjs` — Extract 100% of master game strings into `data/i18n/en.json`
 - `node scripts/translate-game-data.mjs` — Run Gemini 2.5 Flash batch translation across all 9 official SA languages
 - `node scripts/generate-map-backgrounds.mjs` — Regenerate regional tactical map backgrounds via `FAL_API_KEY`
+
 
 
 

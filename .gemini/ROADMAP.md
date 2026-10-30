@@ -436,6 +436,23 @@ The overarching narrative architecture is documented in [`STORIES.md`](file:///c
 
 ---
 
+### Phase 27b: Host Africa HCODE & Cloud PaaS Runtime Hardening ✅
+- [x] **Resolved Host Africa HCODE "Runtime Quota Conflict"**:
+  - Identified root cause: `next.config.mjs` was configured with `output: 'export'` for Capacitor Android static generation, which caused standard `npm start` (`next start`) to fail with exit code 1 (`"next start" does not work with "output: export"`).
+  - Rapid supervisor restart loops on HCODE triggered process limit throttling, container resource collisions, and "runtime quota conflict" rejections.
+- [x] **Zero-Dependency Native Production Web Server (`server.mjs`)**:
+  - Implemented high-performance, low-memory Node.js HTTP server (`node:http`, `node:fs`, `node:zlib`) that serves the pre-rendered `out/` static directory on `0.0.0.0:${PORT:-3000}`.
+  - Ultra-low memory footprint: ~25MB to 30MB RAM (<5% of a 512MB HCODE plan quota), preventing memory quota exhaustions.
+  - Built-in `/healthz` and `/api/health` endpoints returning HTTP 200 uptime telemetry for container supervisors.
+  - Graceful `SIGTERM` and `SIGINT` signal trapping to eliminate dangling process locks and port collision errors.
+- [x] **Runtime Version & Engine Constraints (`package.json`)**:
+  - Locked Node version (`"engines": { "node": ">=18.18.0", "npm": ">=9.0.0" }`) to prevent runtime mismatches on HCODE buildpacks.
+  - Updated `"start": "node server.mjs"`.
+- [x] **Multi-Stage Containerization (`Dockerfile` & `.dockerignore`)**:
+  - Added ultra-lean Alpine multi-stage Docker build (~75MB) with non-root security user and automated healthcheck for HCODE Docker deployments.
+
+---
+
 ### Phase 28: Voiceover Stems & Audio Atmosphere Expansion 📋
 - [ ] Authentic multilingual audio voice stabs for key NPC introductions across all official South African languages.
 - [ ] Regional procedural soundscape extensions: Highveld thunder and mine lifts, desert wind and Atlantic shore breaks, Cape Doctor gales, and bunker emergency klaxons.
